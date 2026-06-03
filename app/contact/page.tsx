@@ -1,6 +1,5 @@
 import Link from "next/link"
 import { ArrowLeft, FileJson, Mail, MessageSquare } from "lucide-react"
-import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
 
 export default function ContactPage() {

@@ -10,13 +10,9 @@ import {
   Code2,
   ListTree,
   Terminal,
-  Settings,
-  Database,
   ShieldCheck,
   CheckCircle2,
   Plus,
-  MousePointer2,
-  Save,
   Download,
   History,
   FileUp,
@@ -461,7 +457,6 @@ export default function HomePage() {
                 <FAQItem
                   question="How to read and navigate large JSON files?"
                   answer="JSONdeck features an advanced Tree View for hierarchical navigation and a recursive search tool to find specific keys or values in seconds, regardless of file size."
-                  isLast
                 />
               </div>
             </div>
@@ -731,11 +726,9 @@ function FeatureCard({
 function FAQItem({
   question,
   answer,
-  isLast = false,
 }: {
   question: string
   answer: string
-  isLast?: boolean
 }) {
   const [isOpen, setIsOpen] = React.useState(false)
 
