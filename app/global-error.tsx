@@ -74,7 +74,7 @@ export default function GlobalError({
           </motion.div>
           
           <p className="mt-12 text-[10px] font-black tracking-[0.5em] text-muted-foreground/30 uppercase">
-            &copy; 2026 KodaJSON Research. ALL RIGHTS RESERVED.
+            &copy; 2026 JSONdeck Research. ALL RIGHTS RESERVED.
           </p>
         </div>
       </body>

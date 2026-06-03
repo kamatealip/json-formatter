@@ -14,8 +14,16 @@ interface JsonTreeViewProps {
   name?: string
   isLast?: boolean
   depth?: number
-  searchQuery?: string
+  path?: string[]
 }
+
+interface TreeContextType {
+  activePath: string[]
+  setActivePath: (path: string[]) => void
+  searchQuery: string
+}
+
+const TreeContext = React.createContext<TreeContextType | null>(null)
 
 function deepMatch(data: unknown, query: string): boolean {
   if (!query) return true
@@ -29,10 +37,31 @@ function deepMatch(data: unknown, query: string): boolean {
   return false
 }
 
-function JsonNode({ data, name, isLast = true, depth = 0, searchQuery = "" }: JsonTreeViewProps) {
+function JsonNode({ data, name, isLast = true, depth = 0, path = [] }: JsonTreeViewProps) {
+  const context = React.useContext(TreeContext)
+  const { activePath = [], setActivePath = () => {}, searchQuery = "" } = context || {}
+
   const isObject = data !== null && typeof data === "object"
   const isArray = Array.isArray(data)
   
+  // Construct path for this node
+  const currentPath = React.useMemo(() => {
+    if (name === undefined && depth === 0) return []
+    return name !== undefined ? [...path, name] : path
+  }, [name, path, depth])
+
+  const isActive = activePath.length > 0 && JSON.stringify(activePath) === JSON.stringify(currentPath)
+
+  const [isOpen, setIsOpen] = React.useState(depth < 2 || !!searchQuery)
+  const [prevSearchQuery, setPrevSearchQuery] = React.useState(searchQuery)
+
+  if (searchQuery !== prevSearchQuery) {
+    setPrevSearchQuery(searchQuery)
+    if (searchQuery) setIsOpen(true)
+  }
+
+  if (!context) return null
+
   // Base case: Primitive types
   if (!isObject) {
     let valueColor = "text-foreground"
@@ -60,7 +89,17 @@ function JsonNode({ data, name, isLast = true, depth = 0, searchQuery = "" }: Js
     if (searchQuery && !isMatch) return null
 
     return (
-      <div className={cn("flex items-center gap-2 py-0.5 group rounded px-1 transition-colors", isMatch && "bg-primary/20 ring-1 ring-primary/30")}>
+      <div 
+        className={cn(
+          "flex items-center gap-2 py-0.5 group rounded px-1 transition-colors cursor-pointer", 
+          isMatch && "bg-primary/20 ring-1 ring-primary/30",
+          isActive && "bg-primary/10 ring-1 ring-primary/20 shadow-sm"
+        )}
+        onClick={(e) => {
+          e.stopPropagation()
+          setActivePath(currentPath)
+        }}
+      >
         <div className="flex items-center gap-1.5 min-w-fit">
           <Icon className="h-3 w-3 text-muted-foreground/50" />
           {name && <span className="text-sm font-medium text-foreground/80">{name}:</span>}
@@ -88,13 +127,6 @@ function JsonNode({ data, name, isLast = true, depth = 0, searchQuery = "" }: Js
       })
     : keys
 
-  const [isOpen, setIsOpen] = React.useState(depth < 2 || !!searchQuery)
-
-  // Auto-expand on search
-  React.useEffect(() => {
-    if (searchQuery) setIsOpen(true)
-  }, [searchQuery])
-
   if (searchQuery && filteredKeys.length === 0 && !(name && name.toLowerCase().includes(searchQuery.toLowerCase()))) {
     return null
   }
@@ -111,9 +143,22 @@ function JsonNode({ data, name, isLast = true, depth = 0, searchQuery = "" }: Js
       onOpenChange={setIsOpen}
       className="w-full"
     >
-      <div className={cn("flex items-center gap-1.5 py-1 group rounded px-1 transition-colors", isNameMatch && "bg-primary/20 ring-1 ring-primary/30")}>
+      <div 
+        className={cn(
+          "flex items-center gap-1.5 py-1 group rounded px-1 transition-colors cursor-pointer", 
+          isNameMatch && "bg-primary/20 ring-1 ring-primary/30",
+          isActive && "bg-primary/10 ring-1 ring-primary/20 shadow-sm"
+        )}
+        onClick={(e) => {
+          e.stopPropagation()
+          setActivePath(currentPath)
+        }}
+      >
         <CollapsibleTrigger asChild>
-          <button className="p-0.5 hover:bg-muted rounded-sm transition-colors shrink-0">
+          <button 
+            className="p-0.5 hover:bg-muted rounded-sm transition-colors shrink-0"
+            onClick={(e) => e.stopPropagation()}
+          >
             {isOpen ? (
               <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
             ) : (
@@ -141,7 +186,7 @@ function JsonNode({ data, name, isLast = true, depth = 0, searchQuery = "" }: Js
                 data={record[key]} 
                 isLast={index === filteredKeys.length - 1}
                 depth={depth + 1}
-                searchQuery={searchQuery}
+                path={isArray ? [...currentPath, `[${key}]`] : currentPath}
               />
             ))}
           </div>
@@ -155,6 +200,7 @@ function JsonNode({ data, name, isLast = true, depth = 0, searchQuery = "" }: Js
 
 export function JsonTreeView({ data }: { data: unknown }) {
   const [searchQuery, setSearchQuery] = React.useState("")
+  const [activePath, setActivePath] = React.useState<string[]>([])
 
   if (data === null || data === undefined) {
     return (
@@ -166,34 +212,63 @@ export function JsonTreeView({ data }: { data: unknown }) {
   }
 
   return (
-    <div className="h-full w-full flex flex-col overflow-hidden">
-      {/* Search Header */}
-      <div className="px-4 py-2 border-b bg-muted/20 flex items-center gap-2 shrink-0">
-        <div className="relative flex-1">
-          <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-          <input 
-            type="text" 
-            placeholder="Search keys or values..." 
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-background border rounded-md pl-8 pr-8 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-primary"
-          />
-          {searchQuery && (
-            <button 
-              onClick={() => setSearchQuery("")}
-              className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 hover:bg-muted rounded-full"
-            >
-              <X className="h-3 w-3 text-muted-foreground" />
-            </button>
-          )}
+    <TreeContext.Provider value={{ activePath, setActivePath, searchQuery }}>
+      <div className="h-full w-full flex flex-col overflow-hidden">
+        {/* Search Header */}
+        <div className="px-4 py-2 border-b bg-muted/20 flex items-center gap-2 shrink-0">
+          <div className="relative flex-1">
+            <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+            <input 
+              type="text" 
+              placeholder="Search keys or values..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-background border rounded-md pl-8 pr-8 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-primary"
+            />
+            {searchQuery && (
+              <button 
+                onClick={() => setSearchQuery("")}
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 hover:bg-muted rounded-full"
+              >
+                <X className="h-3 w-3 text-muted-foreground" />
+              </button>
+            )}
+          </div>
         </div>
-      </div>
 
-      <div className="flex-1 overflow-auto p-4 custom-scrollbar">
-        <div className="max-w-full inline-block min-w-full">
-          <JsonNode data={data} depth={0} searchQuery={searchQuery} />
+        {/* Breadcrumbs bar */}
+        <div className="px-4 py-1.5 border-b bg-muted/5 flex items-center gap-1 overflow-x-auto no-scrollbar shrink-0 min-h-8">
+          <button 
+            onClick={() => setActivePath([])}
+            className={cn(
+              "text-[10px] font-bold transition-colors uppercase tracking-wider whitespace-nowrap",
+              activePath.length === 0 ? "text-primary" : "text-muted-foreground hover:text-primary"
+            )}
+          >
+            root
+          </button>
+          {activePath.map((segment, i) => (
+            <React.Fragment key={i}>
+              <ChevronRight className="h-3 w-3 text-muted-foreground/30 shrink-0" />
+              <button 
+                onClick={() => setActivePath(activePath.slice(0, i + 1))}
+                className={cn(
+                  "text-[10px] font-bold transition-colors whitespace-nowrap",
+                  i === activePath.length - 1 ? "text-primary" : "text-muted-foreground hover:text-primary"
+                )}
+              >
+                {segment}
+              </button>
+            </React.Fragment>
+          ))}
+        </div>
+
+        <div className="flex-1 overflow-auto p-4 custom-scrollbar">
+          <div className="max-w-full inline-block min-w-full">
+            <JsonNode data={data} depth={0} />
+          </div>
         </div>
       </div>
-    </div>
+    </TreeContext.Provider>
   )
 }

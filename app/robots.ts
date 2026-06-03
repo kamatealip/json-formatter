@@ -6,6 +6,6 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: "*",
       allow: "/",
     },
-    sitemap: "https://kodajson.com/sitemap.xml",
+    sitemap: "https://jsondek.com/sitemap.xml",
   }
 }

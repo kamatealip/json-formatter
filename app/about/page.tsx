@@ -20,7 +20,7 @@ export default function AboutPage() {
               <FileJson className="h-6 w-6 text-primary" />
             </div>
             <span className="text-xl font-black tracking-tighter">
-              KodaJSON
+              JSONdeck
             </span>
           </div>
         </div>
@@ -30,7 +30,7 @@ export default function AboutPage() {
       <main className="flex-1 px-6 py-24">
         <div className="mx-auto max-w-3xl">
           <h1 className="mb-8 bg-gradient-to-r from-foreground to-foreground/40 bg-clip-text text-4xl font-black tracking-tighter text-transparent md:text-6xl">
-            About KodaJSON
+            About JSONdeck
           </h1>
 
           <div className="prose prose-invert max-w-none space-y-8 text-lg leading-relaxed text-muted-foreground">
@@ -39,7 +39,7 @@ export default function AboutPage() {
                 The Mission
               </h2>
               <p>
-                KodaJSON was born out of a simple necessity: the need for a
+                JSONdeck was born out of a simple necessity: the need for a
                 professional-grade JSON formatter that doesn&apos;t compromise
                 on privacy or performance. We believe that developers
                 shouldn&apos;t have to choose between convenience and security
@@ -53,7 +53,7 @@ export default function AboutPage() {
               </h2>
               <p>
                 Unlike many online tools that send your data to a server for
-                processing, KodaJSON operates entirely within your browser. We
+                processing, JSONdeck operates entirely within your browser. We
                 use modern Web Workers to handle heavy formatting and repair
                 tasks, ensuring your UI remains responsive while your data stays
                 exactly where it belongs—on your machine.
@@ -66,7 +66,7 @@ export default function AboutPage() {
               </h2>
               <p>
                 Built with Next.js and powered by the Monaco Editor engine (the
-                same core that powers VS Code), KodaJSON provides a native-level
+                same core that powers VS Code), JSONdeck provides a native-level
                 experience on the web. Our smart repair system is designed to
                 handle the &quot;messy&quot; JSON often produced during
                 development, automatically fixing common syntax errors in
@@ -84,7 +84,7 @@ export default function AboutPage() {
       {/* Simple Footer */}
       <footer className="border-t border-border px-6 py-12">
         <div className="mx-auto flex max-w-3xl flex-col items-center justify-between gap-6 text-[10px] font-black tracking-[0.2em] text-muted-foreground/30 uppercase md:flex-row">
-          <p>© 2026 KodaJSON Research. ALL RIGHTS RESERVED.</p>
+          <p>© 2026 JSONdeck Research. ALL RIGHTS RESERVED.</p>
           <div className="flex gap-8">
             <Link
               href="/privacy"

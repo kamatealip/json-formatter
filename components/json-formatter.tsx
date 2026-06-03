@@ -3,13 +3,6 @@
 import * as React from "react"
 import { Editor, loader, type Monaco } from "@monaco-editor/react"
 import { useTheme } from "next-themes"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
-} from "@/components/ui/dropdown-menu"
 import { 
   Copy, 
   Download, 
@@ -19,13 +12,11 @@ import {
   Info,
   Code2,
   ListTree,
-  Settings2,
   ArrowLeft,
   ChevronRight,
   Sparkles,
   FileUp,
-  RotateCcw,
-  ChevronDown
+  RotateCcw
 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -54,18 +45,6 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
-import { Label } from "@/components/ui/label"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Switch } from "@/components/ui/switch"
 import { JsonTreeView } from "@/components/json-tree-view"
 import { cn } from "@/lib/utils"
 
@@ -82,7 +61,7 @@ interface CopyConfig {
 }
 
 const DEFAULT_JSON = `{
-  "message": "Welcome to KodaJSON",
+  "message": "Welcome to JSONdeck",
   "status": "online",
   "tagline": "The Ultimate Online JSON Experience",
   "capabilities": {
@@ -110,14 +89,14 @@ export function JsonFormatter() {
 
   const [input, setInput] = React.useState<string>(() => {
     if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("kodajson-input")
+      const saved = localStorage.getItem("jsondek-input")
       if (saved && saved.trim()) return saved
     }
     return DEFAULT_JSON
   })
 
   React.useEffect(() => {
-    localStorage.setItem("kodajson-input", input)
+    localStorage.setItem("jsondek-input", input)
   }, [input])
 
   const [indentSize, setIndentSize] = React.useState<string>("2")
@@ -127,65 +106,66 @@ export function JsonFormatter() {
   const [mobileView, setMobileView] = React.useState<'input' | 'output'>('input')
   
   // Modal State
-  const [isCopyModalOpen, setIsCopyModalOpen] = React.useState(false)
-  const [copyConfig, setCopyConfig] = React.useState<CopyConfig>({
+  const [copyConfig] = React.useState<CopyConfig>({
     format: 'json',
     indent: '2',
     minify: false
   })
 
-  const editorTheme = resolvedTheme === "dark" ? "github-dark" : "github-light"
+  const editorTheme = resolvedTheme === "dark" ? "jsondek-dark" : "jsondek-light"
 
   const handleEditorWillMount = (monaco: Monaco) => {
-    monaco.editor.defineTheme('github-dark', {
+    monaco.editor.defineTheme('jsondek-dark', {
       base: 'vs-dark',
       inherit: true,
       rules: [
-        { token: 'string', foreground: 'a5d6ff' },
-        { token: 'keyword', foreground: 'ff7b72' },
-        { token: 'number', foreground: '79c0ff' },
-        { token: 'type', foreground: 'ffa657' },
-        { token: 'comment', foreground: '8b949e' },
-        { token: 'operator', foreground: '79c0ff' },
+        { token: 'string', foreground: '4ade80' },
+        { token: 'number', foreground: '60a5fa' },
+        { token: 'keyword', foreground: 'fb923c' },
+        { token: 'type', foreground: 'fb923c' },
+        { token: 'comment', foreground: '6b7280' },
+        { token: 'operator', foreground: '9ca3af' },
+        { token: 'key', foreground: 'e5e7eb' },
       ],
       colors: {
         'editor.background': '#0d1117',
-        'editor.foreground': '#c9d1d9',
+        'editor.foreground': '#e5e7eb',
         'editor.lineHighlightBackground': '#161b22',
-        'editorCursor.foreground': '#58a6ff',
+        'editorCursor.foreground': '#3b82f6',
         'editorIndentGuide.background': '#21262d',
         'editor.selectionBackground': '#1f6feb44',
       }
     });
 
-    monaco.editor.defineTheme('github-light', {
+    monaco.editor.defineTheme('jsondek-light', {
       base: 'vs',
       inherit: true,
       rules: [
-        { token: 'string', foreground: '0a3069' },
-        { token: 'keyword', foreground: 'cf222e' },
-        { token: 'number', foreground: '0550ae' },
-        { token: 'type', foreground: '953800' },
-        { token: 'comment', foreground: '57606a' },
-        { token: 'operator', foreground: '0550ae' },
+        { token: 'string', foreground: '16a34a' },
+        { token: 'number', foreground: '2563eb' },
+        { token: 'keyword', foreground: 'ea580c' },
+        { token: 'type', foreground: 'ea580c' },
+        { token: 'comment', foreground: '6b7280' },
+        { token: 'operator', foreground: '4b5563' },
+        { token: 'key', foreground: '1f2937' },
       ],
       colors: {
         'editor.background': '#ffffff',
-        'editor.foreground': '#24292f',
-        'editor.lineHighlightBackground': '#f6f8fa',
-        'editorCursor.foreground': '#0969da',
-        'editorIndentGuide.background': '#d8dee4',
-        'editor.selectionBackground': '#add6ff77',
+        'editor.foreground': '#1f2937',
+        'editor.lineHighlightBackground': '#f3f4f6',
+        'editorCursor.foreground': '#2563eb',
+        'editorIndentGuide.background': '#e5e7eb',
+        'editor.selectionBackground': '#bfdbfe77',
       }
     });
   }
 
-  const [isPending, startTransition] = React.useTransition()
+  const [, startTransition] = React.useTransition()
   const deferredInput = React.useDeferredValue(input)
 
   const [processedResult, setProcessedResult] = React.useState<{
     output: string
-    parsed: any
+    parsed: unknown
     error: string | null
   }>({ output: "", parsed: null, error: null })
 
@@ -241,7 +221,6 @@ export function JsonFormatter() {
       const textToCopy = generateCopyText(parsed, copyConfig)
       await navigator.clipboard.writeText(textToCopy)
       toast.success(`Copied as ${copyConfig.format.toUpperCase()}`)
-      setIsCopyModalOpen(false)
     } catch {
       toast.error("Failed to copy")
     }
@@ -288,7 +267,7 @@ export function JsonFormatter() {
 
   const handleSmartFix = () => {
     try {
-      let fixed = input
+      const fixed = input
         .replace(/\/\/.*$/gm, '') // Remove single-line comments
         .replace(/\/\*[\s\S]*?\*\//g, '') // Remove multi-line comments
         .replace(/'/g, '"') // Single to double quotes (heuristic)
@@ -484,7 +463,7 @@ export function JsonFormatter() {
                 <SelectItem value="minify">Minified</SelectItem>
               </SelectContent>
             </Select>
-            
+
             <Separator orientation="vertical" className="h-6 mx-0.5 md:mx-1 shrink-0" />
             
             <Tooltip>
@@ -571,49 +550,21 @@ export function JsonFormatter() {
               </Tooltip>
             )}
 
-            {/* Split Button Copy - Uses CSS for fine-tuned responsiveness */}
-            <div className="flex items-center shrink-0 bg-background rounded-md border border-muted-foreground/20 shadow-sm overflow-hidden">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={handleCopyAction} 
-                    disabled={!parsed}
-                    className="h-8 rounded-none border-r border-muted-foreground/10 px-2.5 md:px-3 text-primary hover:bg-primary/5 transition-colors"
-                  >
-                    <Copy className="h-3.5 w-3.5 mr-0 md:mr-1.5" />
-                    <span className="text-xs font-semibold hidden md:inline">Copy</span>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Instant Copy</TooltipContent>
-              </Tooltip>
-
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    disabled={!parsed}
-                    className="h-8 w-6 md:w-7 p-0 rounded-none hover:bg-primary/5 border-l-0"
-                  >
-                    <ChevronDown className="h-3.5 w-3.5 opacity-60" />
-                    <span className="sr-only">Copy Options</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
-                  <DropdownMenuItem onClick={handleCopyAction} className="gap-2">
-                    <Copy className="h-4 w-4" />
-                    Instant Copy
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => setIsCopyModalOpen(true)} className="gap-2">
-                    <Settings2 className="h-4 w-4" />
-                    Copy Settings...
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={handleCopyAction} 
+                  disabled={!parsed}
+                  className="h-8 gap-1.5 text-primary hover:bg-primary/5 transition-colors border shadow-sm"
+                >
+                  <Copy className="h-3.5 w-3.5" />
+                  <span className="text-xs font-semibold hidden md:inline">Copy</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Copy JSON</TooltipContent>
+            </Tooltip>
 
             <Button 
               variant="default" 
@@ -675,7 +626,7 @@ export function JsonFormatter() {
           <span>Chars: {input.length}</span>
           <span className="hidden xs:inline">Lines: {input.split('\n').length}</span>
         </div>
-        <div>KodaJSON System</div>
+        <div>JSONdeck System</div>
       </div>
     </div>
   )

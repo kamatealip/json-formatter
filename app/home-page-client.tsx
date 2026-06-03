@@ -94,7 +94,7 @@ export default function HomePage() {
           <div className="rounded-xl border border-primary/20 bg-primary/20 p-2">
             <FileJson className="h-6 w-6 text-primary" />
           </div>
-          <span className="text-xl font-black tracking-tighter">KodaJSON</span>
+          <span className="text-xl font-black tracking-tighter">JSONdeck</span>
         </motion.div>
 
         <div className="flex items-center gap-6">
@@ -206,7 +206,7 @@ export default function HomePage() {
                     <div className="h-3.5 w-3.5 rounded-full border border-emerald-500/50 bg-emerald-500/30" />
                   </div>
                   <div className="text-[10px] font-black tracking-[0.3em] text-muted-foreground/30 uppercase">
-                    KODA_KERNEL_CORE.v1
+                    JSONDEK_KERNEL_CORE.v1
                   </div>
                 </div>
                 <div className="grid grid-cols-1 divide-y divide-border p-0 font-mono text-sm md:grid-cols-2 md:divide-x md:divide-y-0">
@@ -361,27 +361,27 @@ export default function HomePage() {
               <div className="space-y-4">
                 <FAQItem
                   question="Is there a reliable JSON formatter online?"
-                  answer="Yes, KodaJSON is a professional-grade, privacy-first online JSON formatter designed for developers who need fast and secure data processing."
+                  answer="Yes, JSONdeck is a professional-grade, privacy-first online JSON formatter designed for developers who need fast and secure data processing."
                 />
                 <FAQItem
                   question="How to identify and fix JSON syntax errors?"
-                  answer="KodaJSON automatically detects syntax errors in real-time. Use the 'Smart Repair' feature to automatically fix common issues like unquoted keys, trailing commas, and single quotes."
+                  answer="JSONdeck automatically detects syntax errors in real-time. Use the 'Smart Repair' feature to automatically fix common issues like unquoted keys, trailing commas, and single quotes."
                 />
                 <FAQItem
-                  question="Can I use KodaJSON on my smartphone?"
-                  answer="Absolutely. KodaJSON is built with a responsive design that works seamlessly on mobile devices, allowing you to format and inspect JSON data anywhere."
+                  question="Can I use JSONdeck on my smartphone?"
+                  answer="Absolutely. JSONdeck is built with a responsive design that works seamlessly on mobile devices, allowing you to format and inspect JSON data anywhere."
                 />
                 <FAQItem
                   question="How to format and beautify JSON online?"
-                  answer="Simply paste your raw JSON into the editor. KodaJSON instantly applies syntax highlighting and indentation. You can adjust the indentation size between 2 spaces, 4 spaces, or tabs."
+                  answer="Simply paste your raw JSON into the editor. JSONdeck instantly applies syntax highlighting and indentation. You can adjust the indentation size between 2 spaces, 4 spaces, or tabs."
                 />
                 <FAQItem
                   question="Is it safe to use an online JSON formatter?"
-                  answer="With KodaJSON, it is 100% safe. All processing is done locally in your browser. Your data never leaves your machine and is never sent to any server."
+                  answer="With JSONdeck, it is 100% safe. All processing is done locally in your browser. Your data never leaves your machine and is never sent to any server."
                 />
                 <FAQItem
                   question="How to read and navigate large JSON files?"
-                  answer="KodaJSON features an advanced Tree View for hierarchical navigation and a recursive search tool to find specific keys or values in seconds, regardless of file size."
+                  answer="JSONdeck features an advanced Tree View for hierarchical navigation and a recursive search tool to find specific keys or values in seconds, regardless of file size."
                   isLast
                 />
               </div>
@@ -458,20 +458,20 @@ export default function HomePage() {
                   When using any <strong className="text-primary">online json formatter free</strong> tool, security should be your top priority. Many online tools send your data to their servers for processing, which can be a massive risk if you are handling sensitive API keys, user data, or proprietary configurations.
                 </p>
                 <p>
-                  KodaJSON is designed as a privacy-first utility. Unlike other tools, our <strong className="text-primary">online json viewer</strong> processes everything locally within your browser. This means your data never leaves your machine. Whether you are using it as a <strong className="text-primary">free online json formatter</strong> or a complex debugger, you can rest assured that your data remains 100% private and secure.
+                  JSONdeck is designed as a privacy-first utility. Unlike other tools, our <strong className="text-primary">online json viewer</strong> processes everything locally within your browser. This means your data never leaves your machine. Whether you are using it as a <strong className="text-primary">free online json formatter</strong> or a complex debugger, you can rest assured that your data remains 100% private and secure.
                 </p>
 
                 <h3 className="text-2xl font-bold text-foreground">Advanced Features for Developers</h3>
                 <p>
-                  For those who require more than just basic beautification, KodaJSON offers a suite of advanced primitives. Our recursive engine is optimized for high-performance, capable of handling multi-megabyte files without lagging your browser. When you use this <strong className="text-primary">online json viewer</strong>, you are leveraging the same Monaco Editor engine that powers VS Code, giving you access to familiar features like bracket matching, code folding, and native syntax highlighting.
+                  For those who require more than just basic beautification, JSONdeck offers a suite of advanced primitives. Our recursive engine is optimized for high-performance, capable of handling multi-megabyte files without lagging your browser. When you use this <strong className="text-primary">online json viewer</strong>, you are leveraging the same Monaco Editor engine that powers VS Code, giving you access to familiar features like bracket matching, code folding, and native syntax highlighting.
                 </p>
                 <p>
-                  The <strong className="text-primary">online json tree view</strong> is particularly useful for engineers who need to map out data flows or understand complex API responses. By providing a clear visual representation of objects and arrays, it reduces cognitive load and allows you to spot structural anomalies at a glance. Whether you need a <strong className="text-primary">free online json viewer</strong> for a one-off task or a daily driver for your development workflow, KodaJSON delivers unmatched precision and speed.
+                  The <strong className="text-primary">online json tree view</strong> is particularly useful for engineers who need to map out data flows or understand complex API responses. By providing a clear visual representation of objects and arrays, it reduces cognitive load and allows you to spot structural anomalies at a glance. Whether you need a <strong className="text-primary">free online json viewer</strong> for a one-off task or a daily driver for your development workflow, JSONdeck delivers unmatched precision and speed.
                 </p>
 
                 <h3 className="text-2xl font-bold text-foreground">How to Use Our Free Online JSON Formatter</h3>
                 <p>
-                  Using KodaJSON is incredibly straightforward. Simply follow these steps:
+                  Using JSONdeck is incredibly straightforward. Simply follow these steps:
                 </p>
                 <ul className="list-disc space-y-2 pl-6">
                   <li>Paste your raw JSON data into the editor window.</li>
@@ -482,7 +482,7 @@ export default function HomePage() {
                   <li>Export your formatted data or copy it to your clipboard.</li>
                 </ul>
                 <p>
-                  Our goal is to provide the best <strong className="text-primary">online json formatter free</strong> service on the web, combining power with simplicity. Whether you are debugging a complex API response or just trying to make sense of a config file, KodaJSON is the ultimate <strong className="text-primary">json formatter</strong> for the modern developer.
+                  Our goal is to provide the best <strong className="text-primary">online json formatter free</strong> service on the web, combining power with simplicity. Whether you are debugging a complex API response or just trying to make sense of a config file, JSONdeck is the ultimate <strong className="text-primary">json formatter</strong> for the modern developer.
                 </p>
 
                 <h3 className="text-2xl font-bold text-foreground">Conclusion</h3>
@@ -490,7 +490,7 @@ export default function HomePage() {
                   Whether you are a seasoned engineer or just starting your coding journey, having a reliable <strong className="text-primary">json formatter</strong> is non-negotiable. From beautifying messy strings with an <strong className="text-primary">online json formatter</strong> to exploring deep structures with an <strong className="text-primary">online json tree view</strong>, the right tools can significantly boost your productivity. Don&apos;t settle for basic tools; choose a <strong className="text-primary">free online json viewer</strong> that offers speed, repair capabilities, and absolute privacy.
                 </p>
                 <p>
-                  Experience the best <strong className="text-primary">json fromatter online</strong> today and streamline your data workflow with KodaJSON.
+                  Experience the best <strong className="text-primary">json fromatter online</strong> today and streamline your data workflow with JSONdeck.
                 </p>
               </div>
             </div>
@@ -506,7 +506,7 @@ export default function HomePage() {
               <div className="mb-6 flex items-center gap-2.5">
                 <FileJson className="h-8 w-8 text-primary" />
                 <span className="text-2xl font-black tracking-tighter">
-                  KodaJSON
+                  JSONdeck
                 </span>
               </div>
               <p className="max-w-sm text-lg leading-relaxed font-medium text-muted-foreground">
@@ -574,7 +574,7 @@ export default function HomePage() {
 
           <div className="flex flex-col items-center justify-between gap-8 border-t border-border pt-12 md:flex-row">
             <p className="text-[10px] font-black tracking-[0.2em] text-muted-foreground/30 uppercase">
-              &copy; 2026 KodaJSON Research. ALL RIGHTS RESERVED.
+              &copy; 2026 JSONdeck Research. ALL RIGHTS RESERVED.
             </p>
             <div className="group flex cursor-default items-center gap-3 text-muted-foreground/10">
               <ShieldCheck className="h-4 w-4 transition-colors group-hover:text-primary" />

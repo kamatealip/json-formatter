@@ -17,25 +17,25 @@ const fontMono = Geist_Mono({
 export const metadata: Metadata = {
   title: {
     default: "JSON Formatter - Best Online JSON Viewer & Repair Tool",
-    template: "%s | KodaJSON"
+    template: "%s | JSONdeck"
   },
   description: "Free online JSON formatter and viewer. Best tool to format, beautify, repair, and navigate complex JSON data structures with recursive tree view and smart syntax repair.",
   keywords: ["json formatter", "online json formatter", "json fromatter online", "online json viewer", "online json tree view", "free online json viewer", "free online json formatter", "online json formatter free"],
-  authors: [{ name: "KodaJSON" }],
-  creator: "KodaJSON",
+  authors: [{ name: "JSONdeck" }],
+  creator: "JSONdeck",
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://kodajson.com",
+    url: "https://jsondek.com",
     title: "JSON Formatter - Online JSON Viewer & Repair Tool",
     description: "Format, repair, and explore JSON files locally. High-performance online JSON formatter with 100% privacy.",
-    siteName: "KodaJSON",
+    siteName: "JSONdeck",
     images: [
       {
         url: "/dark.png",
         width: 1200,
         height: 630,
-        alt: "KodaJSON Formatter",
+        alt: "JSONdeck Formatter",
       },
     ],
   },
@@ -44,7 +44,7 @@ export const metadata: Metadata = {
     title: "JSON Formatter - Online JSON Viewer & Repair Tool",
     description: "Format, repair, and explore JSON files locally. High-performance online JSON formatter with 100% privacy.",
     images: ["/dark.png"],
-    creator: "@kodajson",
+    creator: "@jsondek",
   },
   robots: {
     index: true,
