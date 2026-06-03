@@ -3,6 +3,13 @@
 import * as React from "react"
 import { Editor, loader, type Monaco } from "@monaco-editor/react"
 import { useTheme } from "next-themes"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu"
 import { 
   Copy, 
   Download, 
@@ -14,7 +21,11 @@ import {
   ListTree,
   Settings2,
   ArrowLeft,
-  ChevronRight
+  ChevronRight,
+  Sparkles,
+  FileUp,
+  RotateCcw,
+  ChevronDown
 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -56,7 +67,6 @@ import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Switch } from "@/components/ui/switch"
 import { JsonTreeView } from "@/components/json-tree-view"
-import { useMediaQuery } from "@/hooks/use-media-query"
 import { cn } from "@/lib/utils"
 
 // Configure Monaco loader to ensure themes are ready
@@ -71,15 +81,49 @@ interface CopyConfig {
   minify: boolean
 }
 
+const DEFAULT_JSON = `{
+  "message": "Welcome to KodaJSON",
+  "status": "online",
+  "tagline": "The Ultimate Online JSON Experience",
+  "capabilities": {
+    "repair": "Smart Syntax Auto-Fix",
+    "search": "Recursive Tree Filtering",
+    "storage": "Local Persistence",
+    "ux": "Drag & Drop Support"
+  },
+  "features": [
+    "Syntax Highlighting",
+    "Instant Minifying",
+    "Pro-Grade Viewer",
+    "Python Dict Export"
+  ],
+  "stats": {
+    "security": "100% Client-Side",
+    "speed": "Instant",
+    "version": "2.0.0"
+  }
+}`
+
 export function JsonFormatter() {
   const { resolvedTheme } = useTheme()
-  const isDesktop = useMediaQuery("(min-width: 768px)")
-  
-  const [input, setInput] = React.useState<string>('{\n  "message": "Welcome to KodaJSON",\n  "status": "success",\n  "tagline": "The Ultimate Online JSON Formatter",\n  "features": ["Syntax Highlighting", "Instant Minifying", "Advanced Tree View"],\n  "engine": {\n    "name": "KodaJSON Core",\n    "version": "1.0.0"\n  }\n}')
+  const fileInputRef = React.useRef<HTMLInputElement>(null)
+
+  const [input, setInput] = React.useState<string>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("kodajson-input")
+      if (saved && saved.trim()) return saved
+    }
+    return DEFAULT_JSON
+  })
+
+  React.useEffect(() => {
+    localStorage.setItem("kodajson-input", input)
+  }, [input])
+
   const [indentSize, setIndentSize] = React.useState<string>("2")
   const [activeTab, setActiveTab] = React.useState<string>("code")
-  
-  // Mobile View State
+
+  // View State for Mobile/Tablet
   const [mobileView, setMobileView] = React.useState<'input' | 'output'>('input')
   
   // Modal State
@@ -193,6 +237,12 @@ export function JsonFormatter() {
     toast.info("Cleared")
   }
 
+  const handleReset = () => {
+    setInput(DEFAULT_JSON)
+    setIndentSize("2")
+    toast.success("Reset to Default")
+  }
+
   const handleDownload = () => {
     if (!output) return
     const blob = new Blob([output], { type: "application/json" })
@@ -207,6 +257,52 @@ export function JsonFormatter() {
     toast.success("Downloading JSON")
   }
 
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    
+    const reader = new FileReader()
+    reader.onload = (event) => {
+      const content = event.target?.result as string
+      setInput(content)
+      toast.success(`Loaded ${file.name}`)
+    }
+    reader.readAsText(file)
+  }
+
+  const handleSmartFix = () => {
+    try {
+      let fixed = input
+        .replace(/\/\/.*$/gm, '') // Remove single-line comments
+        .replace(/\/\*[\s\S]*?\*\//g, '') // Remove multi-line comments
+        .replace(/'/g, '"') // Single to double quotes (heuristic)
+        .replace(/([{,]\s*)([a-zA-Z0-9_$]+)(\s*:)/g, '$1"$2"$3') // Unquoted keys
+        .replace(/,\s*([}\]])/g, '$1') // Trailing commas
+        .trim()
+      
+      const parsedData = JSON.parse(fixed)
+      setInput(JSON.stringify(parsedData, null, 2))
+      toast.success("JSON Automatically Repaired")
+    } catch {
+      toast.error("Could not repair JSON automatically")
+    }
+  }
+
+  const onDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    const file = e.dataTransfer.files?.[0]
+    if (file && (file.type === "application/json" || file.name.endsWith(".json"))) {
+      const reader = new FileReader()
+      reader.onload = (event) => {
+        setInput(event.target?.result as string)
+        toast.success(`Dropped ${file.name}`)
+      }
+      reader.readAsText(file)
+    } else {
+      toast.error("Please drop a valid JSON file")
+    }
+  }
+
   const handleMobileFormat = () => {
     if (error) {
       toast.error("Invalid JSON")
@@ -217,10 +313,51 @@ export function JsonFormatter() {
   }
 
   const InputPanel = (
-    <div className="h-full flex flex-col">
+    <div 
+      className="h-full flex flex-col"
+      onDragOver={(e) => e.preventDefault()}
+      onDrop={onDrop}
+    >
       <div className="px-3 py-1.5 text-[10px] uppercase font-bold text-muted-foreground bg-muted/10 border-b flex items-center justify-between h-9 shrink-0">
-        <span>Input</span>
-        <span className="font-normal opacity-70">Paste your raw JSON</span>
+        <div className="flex items-center gap-2 text-primary/70">
+          <span>Input</span>
+          <span className="font-normal opacity-70">Paste or drop JSON</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <input 
+            type="file" 
+            ref={fileInputRef} 
+            className="hidden" 
+            accept=".json,application/json"
+            onChange={handleFileUpload}
+          />
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="h-6 w-6 p-0 opacity-50 hover:opacity-100"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <FileUp className="h-3 w-3" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Upload JSON File</TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="h-6 w-6 p-0 opacity-50 hover:opacity-100"
+                onClick={handleReset}
+              >
+                <RotateCcw className="h-3 w-3" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Reset to Default</TooltipContent>
+          </Tooltip>
+        </div>
       </div>
       <div className="flex-1 min-h-0 relative">
         <Editor
@@ -240,15 +377,16 @@ export function JsonFormatter() {
             wordWrap: "on",
           }}
         />
-        {!isDesktop && (
-           <Button 
-            onClick={handleMobileFormat}
-            className="absolute bottom-6 right-6 h-12 rounded-full shadow-lg gap-2 pl-6 pr-4 z-10"
-           >
-             Format Now
-             <ChevronRight className="h-4 w-4" />
-           </Button>
-        )}
+        {/* Floating Action Button - Hidden on Large Screens */}
+        <div className="absolute bottom-6 right-6 lg:hidden">
+          <Button 
+          onClick={handleMobileFormat}
+          className="h-12 rounded-full shadow-lg gap-2 pl-6 pr-4 z-10 font-semibold"
+          >
+            Format & View
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
     </div>
   )
@@ -257,8 +395,10 @@ export function JsonFormatter() {
     <div className="h-full flex flex-col bg-muted/5 relative">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
         <div className="px-3 text-[10px] uppercase font-bold text-muted-foreground bg-muted/10 border-b flex items-center justify-between h-9 shrink-0">
-          <span>Output</span>
-          <TabsList className="h-7 bg-muted/50 p-0.5">
+          <div className="flex items-center gap-2">
+            <span>Output</span>
+          </div>
+          <TabsList className="h-7 bg-muted/50 p-0.5 border">
             <TabsTrigger value="code" className="h-6 text-[10px] px-2 gap-1.5">
               <Code2 className="h-3 w-3" />
               Code
@@ -297,207 +437,191 @@ export function JsonFormatter() {
         </div>
       </Tabs>
       
-      {!isDesktop && (
+      {/* Back Button - Hidden on Large Screens */}
+      <div className="absolute bottom-6 left-6 lg:hidden">
         <Button 
           variant="secondary"
           size="icon"
           onClick={() => setMobileView('input')}
-          className="absolute bottom-6 left-6 h-12 w-12 rounded-full shadow-lg z-10 bg-background/80 backdrop-blur-sm border"
+          className="h-12 w-12 rounded-full shadow-lg z-10 bg-background/80 backdrop-blur-sm border"
         >
           <ArrowLeft className="h-5 w-5" />
         </Button>
-      )}
+      </div>
     </div>
   )
 
   return (
     <div className="flex flex-col h-full w-full bg-background border rounded-lg overflow-hidden shadow-sm">
       {/* Toolbar */}
-      <div className="flex items-center justify-between p-2 bg-muted/30 border-b shrink-0 overflow-x-auto custom-scrollbar">
-        <div className="flex items-center gap-2">
-          <Select value={indentSize} onValueChange={setIndentSize}>
-            <SelectTrigger className="w-[130px] h-8 text-xs shrink-0">
-              <SelectValue placeholder="Indentation" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="2">2 Spaces</SelectItem>
-              <SelectItem value="4">4 Spaces</SelectItem>
-              <SelectItem value="tab">Tabs</SelectItem>
-              <SelectItem value="minify">Minified</SelectItem>
-            </SelectContent>
-          </Select>
-          
-          <Separator orientation="vertical" className="h-6 mx-1 shrink-0" />
-          
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={() => setIndentSize(indentSize === "minify" ? "2" : indentSize)} 
-                className="h-8 gap-1.5 text-primary hover:text-primary hover:bg-primary/10 shrink-0"
-              >
-                <RefreshCw className="h-4 w-4" />
-                <span className="text-xs font-medium hidden sm:inline">Format</span>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Pretty print JSON</TooltipContent>
-          </Tooltip>
-
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={() => setIndentSize("minify")} 
-                className="h-8 gap-1.5 shrink-0"
-              >
-                <Minimize2 className="h-4 w-4" />
-                <span className="text-xs font-medium hidden sm:inline">Minify</span>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Compact JSON</TooltipContent>
-          </Tooltip>
-
-          <Separator orientation="vertical" className="h-6 mx-1 shrink-0" />
-
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={handleClear} 
-                className="h-8 gap-1.5 text-destructive hover:text-destructive hover:bg-destructive/10 shrink-0"
-              >
-                <Eraser className="h-4 w-4" />
-                <span className="text-xs font-medium hidden sm:inline">Clear</span>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Clear input and output</TooltipContent>
-          </Tooltip>
-        </div>
-
-        <div className="flex items-center gap-2 ml-4">
-          {error && (
+      <div className="relative group">
+        <div className="flex items-center justify-between p-2 bg-muted/30 border-b shrink-0 overflow-x-auto no-scrollbar scroll-smooth">
+          <div className="flex items-center gap-1.5 md:gap-2 pr-10">
+            <Select value={indentSize} onValueChange={setIndentSize}>
+              <SelectTrigger className="w-[100px] md:w-[110px] h-8 text-xs shrink-0 bg-background">
+                <SelectValue placeholder="Indent" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="2">2 Spaces</SelectItem>
+                <SelectItem value="4">4 Spaces</SelectItem>
+                <SelectItem value="tab">Tabs</SelectItem>
+                <SelectItem value="minify">Minified</SelectItem>
+              </SelectContent>
+            </Select>
+            
+            <Separator orientation="vertical" className="h-6 mx-0.5 md:mx-1 shrink-0" />
+            
             <Tooltip>
               <TooltipTrigger asChild>
-                <div className="flex items-center gap-1 text-xs text-destructive mr-2 cursor-help shrink-0">
-                  <Info className="h-3 w-3" />
-                  <span className="hidden xs:inline">Invalid JSON</span>
-                </div>
-              </TooltipTrigger>
-              <TooltipContent className="max-w-[300px] bg-destructive text-destructive-foreground">
-                {error}
-              </TooltipContent>
-            </Tooltip>
-          )}
-
-          <Dialog open={isCopyModalOpen} onOpenChange={setIsCopyModalOpen}>
-            <DialogTrigger asChild>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                disabled={!parsed}
-                className="h-8 gap-1.5 shrink-0"
-              >
-                <Copy className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">Copy Settings</span>
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
-              <DialogHeader>
-                <DialogTitle className="flex items-center gap-2">
-                  <Settings2 className="h-5 w-5 text-primary" />
-                  Copy Settings
-                </DialogTitle>
-                <DialogDescription>
-                  Configure how you want to copy the JSON to your clipboard.
-                </DialogDescription>
-              </DialogHeader>
-              
-              <div className="grid gap-6 py-4">
-                <div className="space-y-3">
-                  <Label className="text-sm font-semibold">Output Format</Label>
-                  <RadioGroup 
-                    value={copyConfig.format} 
-                    onValueChange={(v: CopyFormat) => setCopyConfig({...copyConfig, format: v})}
-                    className="flex gap-4"
-                  >
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="json" id="f-json" />
-                      <Label htmlFor="f-json" className="font-normal cursor-pointer">JSON</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="python" id="f-python" />
-                      <Label htmlFor="f-python" className="font-normal cursor-pointer">Python Dict</Label>
-                    </div>
-                  </RadioGroup>
-                </div>
-
-                <Separator />
-
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label className="text-sm font-semibold">Minify Content</Label>
-                    <p className="text-xs text-muted-foreground">Remove all whitespace and newlines.</p>
-                  </div>
-                  <Switch 
-                    checked={copyConfig.minify}
-                    onCheckedChange={(v) => setCopyConfig({...copyConfig, minify: v})}
-                  />
-                </div>
-
-                {!copyConfig.minify && (
-                  <div className="space-y-3">
-                    <Label className="text-sm font-semibold">Indentation</Label>
-                    <RadioGroup 
-                      value={copyConfig.indent} 
-                      onValueChange={(v: CopyIndent) => setCopyConfig({...copyConfig, indent: v})}
-                      className="flex gap-4"
-                    >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="2" id="i-2" />
-                        <Label htmlFor="i-2" className="font-normal cursor-pointer">2 Spaces</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="4" id="i-4" />
-                        <Label htmlFor="i-4" className="font-normal cursor-pointer">4 Spaces</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="tab" id="i-tab" />
-                        <Label htmlFor="i-tab" className="font-normal cursor-pointer">Tabs</Label>
-                      </div>
-                    </RadioGroup>
-                  </div>
-                )}
-              </div>
-
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setIsCopyModalOpen(false)}>Cancel</Button>
-                <Button onClick={handleCopyAction} className="gap-1.5">
-                  <Copy className="h-3.5 w-3.5" />
-                  Copy to Clipboard
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => setIndentSize(indentSize === "minify" ? "2" : indentSize)} 
+                  className={cn(
+                    "h-8 gap-1.5 text-primary hover:text-primary hover:bg-primary/10 shrink-0",
+                    indentSize !== "minify" && "bg-primary/5"
+                  )}
+                >
+                  <RefreshCw className="h-4 w-4" />
+                  <span className="text-xs font-medium hidden sm:inline lg:inline">Format</span>
                 </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+              </TooltipTrigger>
+              <TooltipContent>Pretty print JSON</TooltipContent>
+            </Tooltip>
 
-          <Button 
-            variant="default" 
-            size="sm" 
-            onClick={handleDownload} 
-            disabled={!output}
-            className="h-8 gap-1.5 shrink-0"
-          >
-            <Download className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">Download</span>
-          </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={handleSmartFix} 
+                  className="h-8 gap-1.5 text-primary hover:text-primary hover:bg-primary/10 shrink-0"
+                >
+                  <Sparkles className="h-4 w-4" />
+                  <span className="text-xs font-medium hidden sm:inline lg:inline">Fix</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Auto-repair syntax errors</TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => setIndentSize("minify")} 
+                  className={cn(
+                    "h-8 gap-1.5 shrink-0 hover:bg-primary/10 hover:text-primary",
+                    indentSize === "minify" && "bg-primary/5 text-primary"
+                  )}
+                >
+                  <Minimize2 className="h-4 w-4" />
+                  <span className="text-xs font-medium hidden sm:inline lg:inline">Minify</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Compact JSON</TooltipContent>
+            </Tooltip>
+
+            <Separator orientation="vertical" className="h-6 mx-0.5 md:mx-1 shrink-0" />
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={handleClear} 
+                  className="h-8 gap-1.5 text-destructive hover:text-destructive hover:bg-destructive/10 shrink-0"
+                >
+                  <Eraser className="h-4 w-4" />
+                  <span className="text-xs font-medium hidden sm:inline lg:inline">Clear</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Clear All</TooltipContent>
+            </Tooltip>
+          </div>
+
+          <div className="flex items-center gap-1.5 md:gap-2 ml-4">
+            {error && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="flex items-center gap-1 text-xs text-destructive mr-1 md:mr-2 cursor-help shrink-0">
+                    <Info className="h-3 w-3" />
+                    <span className="hidden xl:inline">Invalid JSON</span>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-[300px] bg-destructive text-destructive-foreground">
+                  {error}
+                </TooltipContent>
+              </Tooltip>
+            )}
+
+            {/* Split Button Copy - Uses CSS for fine-tuned responsiveness */}
+            <div className="flex items-center shrink-0 bg-background rounded-md border border-muted-foreground/20 shadow-sm overflow-hidden">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={handleCopyAction} 
+                    disabled={!parsed}
+                    className="h-8 rounded-none border-r border-muted-foreground/10 px-2.5 md:px-3 text-primary hover:bg-primary/5 transition-colors"
+                  >
+                    <Copy className="h-3.5 w-3.5 mr-0 md:mr-1.5" />
+                    <span className="text-xs font-semibold hidden md:inline">Copy</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Instant Copy</TooltipContent>
+              </Tooltip>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    disabled={!parsed}
+                    className="h-8 w-6 md:w-7 p-0 rounded-none hover:bg-primary/5 border-l-0"
+                  >
+                    <ChevronDown className="h-3.5 w-3.5 opacity-60" />
+                    <span className="sr-only">Copy Options</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem onClick={handleCopyAction} className="gap-2">
+                    <Copy className="h-4 w-4" />
+                    Instant Copy
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => setIsCopyModalOpen(true)} className="gap-2">
+                    <Settings2 className="h-4 w-4" />
+                    Copy Settings...
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+
+            <Button 
+              variant="default" 
+              size="sm" 
+              onClick={handleDownload} 
+              disabled={!output}
+              className="h-8 gap-1.5 shrink-0 px-2.5 md:px-3 shadow-sm"
+            >
+              <Download className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline font-semibold">Download</span>
+            </Button>
+          </div>
+        </div>
+        
+        {/* Mobile Scroll Indicator (requested > icon) */}
+        <div className="absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-background via-background/80 to-transparent flex items-center justify-end pr-2 pointer-events-none lg:hidden group-hover:opacity-0 transition-opacity">
+          <ChevronRight className="h-4 w-4 text-primary/40 animate-pulse" />
         </div>
       </div>
 
-      {/* Main Layout Area */}
+      {/* Main Layout Area - Logic-aware Responsive Design */}
       <div className="flex-1 overflow-hidden min-h-0 relative">
-        {isDesktop ? (
+        {/* Desktop Layout - Uses CSS to hide on small screens but logical split for performance */}
+        <div className="hidden lg:block h-full w-full">
           <ResizablePanelGroup orientation="horizontal">
             <ResizablePanel defaultSize={50} minSize={20}>
               {InputPanel}
@@ -509,23 +633,24 @@ export function JsonFormatter() {
               {OutputPanel}
             </ResizablePanel>
           </ResizablePanelGroup>
-        ) : (
-          <div className="h-full w-full overflow-hidden relative">
-             <div 
-              className={cn(
-                "h-full w-[200%] flex transition-transform duration-500 ease-in-out",
-                mobileView === 'output' ? "-translate-x-1/2" : "translate-x-0"
-              )}
-             >
-                <div className="w-1/2 h-full shrink-0">
-                  {InputPanel}
-                </div>
-                <div className="w-1/2 h-full shrink-0">
-                  {OutputPanel}
-                </div>
-             </div>
-          </div>
-        )}
+        </div>
+
+        {/* Mobile/Tablet Layout - Uses CSS to hide on large screens */}
+        <div className="lg:hidden h-full w-full overflow-hidden relative">
+           <div 
+            className={cn(
+              "h-full w-[200%] flex transition-transform duration-500 ease-in-out",
+              mobileView === 'output' ? "-translate-x-1/2" : "translate-x-0"
+            )}
+           >
+              <div className="w-1/2 h-full shrink-0">
+                {InputPanel}
+              </div>
+              <div className="w-1/2 h-full shrink-0">
+                {OutputPanel}
+              </div>
+           </div>
+        </div>
       </div>
       
       {/* Footer Info */}
