@@ -12,7 +12,9 @@ import {
   Info,
   Code2,
   ListTree,
-  Settings2
+  Settings2,
+  ArrowLeft,
+  ChevronRight
 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -54,6 +56,8 @@ import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Switch } from "@/components/ui/switch"
 import { JsonTreeView } from "@/components/json-tree-view"
+import { useMediaQuery } from "@/hooks/use-media-query"
+import { cn } from "@/lib/utils"
 
 // Configure Monaco loader to ensure themes are ready
 loader.config({ paths: { vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.43.0/min/vs' } });
@@ -69,9 +73,14 @@ interface CopyConfig {
 
 export function JsonFormatter() {
   const { resolvedTheme } = useTheme()
+  const isDesktop = useMediaQuery("(min-width: 768px)")
+  
   const [input, setInput] = React.useState<string>('{\n  "message": "Paste your JSON here",\n  "status": "success",\n  "features": ["Formatting", "Minifying", "Tree View"],\n  "author": {\n    "name": "Gemini CLI",\n    "role": "AI Engineer"\n  }\n}')
   const [indentSize, setIndentSize] = React.useState<string>("2")
   const [activeTab, setActiveTab] = React.useState<string>("code")
+  
+  // Mobile View State
+  const [mobileView, setMobileView] = React.useState<'input' | 'output'>('input')
   
   // Modal State
   const [isCopyModalOpen, setIsCopyModalOpen] = React.useState(false)
@@ -198,13 +207,116 @@ export function JsonFormatter() {
     toast.success("Downloading JSON")
   }
 
+  const handleMobileFormat = () => {
+    if (error) {
+      toast.error("Invalid JSON")
+      return
+    }
+    setMobileView('output')
+    toast.success("JSON Formatted")
+  }
+
+  const InputPanel = (
+    <div className="h-full flex flex-col">
+      <div className="px-3 py-1.5 text-[10px] uppercase font-bold text-muted-foreground bg-muted/10 border-b flex items-center justify-between h-9 shrink-0">
+        <span>Input</span>
+        <span className="font-normal opacity-70">Paste your raw JSON</span>
+      </div>
+      <div className="flex-1 min-h-0 relative">
+        <Editor
+          height="100%"
+          defaultLanguage="json"
+          theme={editorTheme}
+          beforeMount={handleEditorWillMount}
+          value={input}
+          onChange={(v) => setInput(v || "")}
+          options={{
+            minimap: { enabled: false },
+            fontSize: 14,
+            scrollBeyondLastLine: false,
+            automaticLayout: true,
+            padding: { top: 10 },
+            lineNumbers: "on",
+            wordWrap: "on",
+          }}
+        />
+        {!isDesktop && (
+           <Button 
+            onClick={handleMobileFormat}
+            className="absolute bottom-6 right-6 h-12 rounded-full shadow-lg gap-2 pl-6 pr-4 z-10"
+           >
+             Format Now
+             <ChevronRight className="h-4 w-4" />
+           </Button>
+        )}
+      </div>
+    </div>
+  )
+
+  const OutputPanel = (
+    <div className="h-full flex flex-col bg-muted/5 relative">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
+        <div className="px-3 text-[10px] uppercase font-bold text-muted-foreground bg-muted/10 border-b flex items-center justify-between h-9 shrink-0">
+          <span>Output</span>
+          <TabsList className="h-7 bg-muted/50 p-0.5">
+            <TabsTrigger value="code" className="h-6 text-[10px] px-2 gap-1.5">
+              <Code2 className="h-3 w-3" />
+              Code
+            </TabsTrigger>
+            <TabsTrigger value="viewer" className="h-6 text-[10px] px-2 gap-1.5">
+              <ListTree className="h-3 w-3" />
+              Viewer
+            </TabsTrigger>
+          </TabsList>
+        </div>
+        
+        <div className="flex-1 min-h-0 relative">
+          <TabsContent value="code" className="h-full m-0 p-0 data-[state=inactive]:hidden">
+            <Editor
+              height="100%"
+              defaultLanguage="json"
+              theme={editorTheme}
+              beforeMount={handleEditorWillMount}
+              value={output}
+              options={{
+                readOnly: true,
+                minimap: { enabled: false },
+                fontSize: 14,
+                scrollBeyondLastLine: false,
+                automaticLayout: true,
+                padding: { top: 10 },
+                lineNumbers: "on",
+                wordWrap: "on",
+                domReadOnly: true,
+              }}
+            />
+          </TabsContent>
+          <TabsContent value="viewer" className="h-full m-0 p-0 data-[state=inactive]:hidden bg-background">
+            <JsonTreeView data={parsed} />
+          </TabsContent>
+        </div>
+      </Tabs>
+      
+      {!isDesktop && (
+        <Button 
+          variant="secondary"
+          size="icon"
+          onClick={() => setMobileView('input')}
+          className="absolute bottom-6 left-6 h-12 w-12 rounded-full shadow-lg z-10 bg-background/80 backdrop-blur-sm border"
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </Button>
+      )}
+    </div>
+  )
+
   return (
     <div className="flex flex-col h-full w-full bg-background border rounded-lg overflow-hidden shadow-sm">
       {/* Toolbar */}
-      <div className="flex items-center justify-between p-2 bg-muted/30 border-b">
+      <div className="flex items-center justify-between p-2 bg-muted/30 border-b shrink-0 overflow-x-auto custom-scrollbar">
         <div className="flex items-center gap-2">
           <Select value={indentSize} onValueChange={setIndentSize}>
-            <SelectTrigger className="w-[130px] h-8 text-xs">
+            <SelectTrigger className="w-[130px] h-8 text-xs shrink-0">
               <SelectValue placeholder="Indentation" />
             </SelectTrigger>
             <SelectContent>
@@ -215,7 +327,7 @@ export function JsonFormatter() {
             </SelectContent>
           </Select>
           
-          <Separator orientation="vertical" className="h-6 mx-1" />
+          <Separator orientation="vertical" className="h-6 mx-1 shrink-0" />
           
           <Tooltip>
             <TooltipTrigger asChild>
@@ -223,10 +335,10 @@ export function JsonFormatter() {
                 variant="ghost" 
                 size="sm" 
                 onClick={() => setIndentSize(indentSize === "minify" ? "2" : indentSize)} 
-                className="h-8 gap-1.5 text-primary hover:text-primary hover:bg-primary/10"
+                className="h-8 gap-1.5 text-primary hover:text-primary hover:bg-primary/10 shrink-0"
               >
                 <RefreshCw className="h-4 w-4" />
-                <span className="text-xs font-medium">Format</span>
+                <span className="text-xs font-medium hidden sm:inline">Format</span>
               </Button>
             </TooltipTrigger>
             <TooltipContent>Pretty print JSON</TooltipContent>
@@ -238,16 +350,16 @@ export function JsonFormatter() {
                 variant="ghost" 
                 size="sm" 
                 onClick={() => setIndentSize("minify")} 
-                className="h-8 gap-1.5"
+                className="h-8 gap-1.5 shrink-0"
               >
                 <Minimize2 className="h-4 w-4" />
-                <span className="text-xs font-medium">Minify</span>
+                <span className="text-xs font-medium hidden sm:inline">Minify</span>
               </Button>
             </TooltipTrigger>
             <TooltipContent>Compact JSON</TooltipContent>
           </Tooltip>
 
-          <Separator orientation="vertical" className="h-6 mx-1" />
+          <Separator orientation="vertical" className="h-6 mx-1 shrink-0" />
 
           <Tooltip>
             <TooltipTrigger asChild>
@@ -255,23 +367,23 @@ export function JsonFormatter() {
                 variant="ghost" 
                 size="sm" 
                 onClick={handleClear} 
-                className="h-8 gap-1.5 text-destructive hover:text-destructive hover:bg-destructive/10"
+                className="h-8 gap-1.5 text-destructive hover:text-destructive hover:bg-destructive/10 shrink-0"
               >
                 <Eraser className="h-4 w-4" />
-                <span className="text-xs font-medium">Clear</span>
+                <span className="text-xs font-medium hidden sm:inline">Clear</span>
               </Button>
             </TooltipTrigger>
             <TooltipContent>Clear input and output</TooltipContent>
           </Tooltip>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 ml-4">
           {error && (
             <Tooltip>
               <TooltipTrigger asChild>
-                <div className="flex items-center gap-1 text-xs text-destructive mr-4 cursor-help">
+                <div className="flex items-center gap-1 text-xs text-destructive mr-2 cursor-help shrink-0">
                   <Info className="h-3 w-3" />
-                  <span>Invalid JSON</span>
+                  <span className="hidden xs:inline">Invalid JSON</span>
                 </div>
               </TooltipTrigger>
               <TooltipContent className="max-w-[300px] bg-destructive text-destructive-foreground">
@@ -286,7 +398,7 @@ export function JsonFormatter() {
                 variant="outline" 
                 size="sm" 
                 disabled={!parsed}
-                className="h-8 gap-1.5"
+                className="h-8 gap-1.5 shrink-0"
               >
                 <Copy className="h-3.5 w-3.5" />
                 <span className="hidden sm:inline">Copy Settings</span>
@@ -304,7 +416,6 @@ export function JsonFormatter() {
               </DialogHeader>
               
               <div className="grid gap-6 py-4">
-                {/* Format Selection */}
                 <div className="space-y-3">
                   <Label className="text-sm font-semibold">Output Format</Label>
                   <RadioGroup 
@@ -325,7 +436,6 @@ export function JsonFormatter() {
 
                 <Separator />
 
-                {/* Minify Toggle */}
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label className="text-sm font-semibold">Minify Content</Label>
@@ -337,7 +447,6 @@ export function JsonFormatter() {
                   />
                 </div>
 
-                {/* Indentation (only if not minified) */}
                 {!copyConfig.minify && (
                   <div className="space-y-3">
                     <Label className="text-sm font-semibold">Indentation</Label>
@@ -378,7 +487,7 @@ export function JsonFormatter() {
             size="sm" 
             onClick={handleDownload} 
             disabled={!output}
-            className="h-8 gap-1.5"
+            className="h-8 gap-1.5 shrink-0"
           >
             <Download className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">Download</span>
@@ -386,90 +495,44 @@ export function JsonFormatter() {
         </div>
       </div>
 
-      {/* Editors */}
-      <div className="flex-1 overflow-hidden min-h-0">
-        <ResizablePanelGroup orientation="horizontal">
-          <ResizablePanel defaultSize={50} minSize={20}>
-            <div className="h-full flex flex-col">
-              <div className="px-3 py-1.5 text-[10px] uppercase font-bold text-muted-foreground bg-muted/10 border-b flex items-center justify-between h-9">
-                <span>Input</span>
-                <span className="font-normal opacity-70">Paste your raw JSON</span>
-              </div>
-              <Editor
-                height="100%"
-                defaultLanguage="json"
-                theme={editorTheme}
-                beforeMount={handleEditorWillMount}
-                value={input}
-                onChange={(v) => setInput(v || "")}
-                options={{
-                  minimap: { enabled: false },
-                  fontSize: 14,
-                  scrollBeyondLastLine: false,
-                  automaticLayout: true,
-                  padding: { top: 10 },
-                  lineNumbers: "on",
-                  wordWrap: "on",
-                }}
-              />
-            </div>
-          </ResizablePanel>
-          
-          <ResizableHandle withHandle />
-          
-          <ResizablePanel defaultSize={50} minSize={20}>
-            <div className="h-full flex flex-col bg-muted/5">
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
-                <div className="px-3 text-[10px] uppercase font-bold text-muted-foreground bg-muted/10 border-b flex items-center justify-between h-9 shrink-0">
-                  <span>Output</span>
-                  <TabsList className="h-7 bg-muted/50 p-0.5">
-                    <TabsTrigger value="code" className="h-6 text-[10px] px-2 gap-1.5">
-                      <Code2 className="h-3 w-3" />
-                      Code
-                    </TabsTrigger>
-                    <TabsTrigger value="viewer" className="h-6 text-[10px] px-2 gap-1.5">
-                      <ListTree className="h-3 w-3" />
-                      Viewer
-                    </TabsTrigger>
-                  </TabsList>
+      {/* Main Layout Area */}
+      <div className="flex-1 overflow-hidden min-h-0 relative">
+        {isDesktop ? (
+          <ResizablePanelGroup orientation="horizontal">
+            <ResizablePanel defaultSize={50} minSize={20}>
+              {InputPanel}
+            </ResizablePanel>
+            
+            <ResizableHandle withHandle />
+            
+            <ResizablePanel defaultSize={50} minSize={20}>
+              {OutputPanel}
+            </ResizablePanel>
+          </ResizablePanelGroup>
+        ) : (
+          <div className="h-full w-full overflow-hidden relative">
+             <div 
+              className={cn(
+                "h-full w-[200%] flex transition-transform duration-500 ease-in-out",
+                mobileView === 'output' ? "-translate-x-1/2" : "translate-x-0"
+              )}
+             >
+                <div className="w-1/2 h-full shrink-0">
+                  {InputPanel}
                 </div>
-                
-                <div className="flex-1 min-h-0 relative">
-                  <TabsContent value="code" className="h-full m-0 p-0 data-[state=inactive]:hidden">
-                    <Editor
-                      height="100%"
-                      defaultLanguage="json"
-                      theme={editorTheme}
-                      beforeMount={handleEditorWillMount}
-                      value={output}
-                      options={{
-                        readOnly: true,
-                        minimap: { enabled: false },
-                        fontSize: 14,
-                        scrollBeyondLastLine: false,
-                        automaticLayout: true,
-                        padding: { top: 10 },
-                        lineNumbers: "on",
-                        wordWrap: "on",
-                        domReadOnly: true,
-                      }}
-                    />
-                  </TabsContent>
-                  <TabsContent value="viewer" className="h-full m-0 p-0 data-[state=inactive]:hidden bg-background">
-                    <JsonTreeView data={parsed} />
-                  </TabsContent>
+                <div className="w-1/2 h-full shrink-0">
+                  {OutputPanel}
                 </div>
-              </Tabs>
-            </div>
-          </ResizablePanel>
-        </ResizablePanelGroup>
+             </div>
+          </div>
+        )}
       </div>
       
       {/* Footer Info */}
-      <div className="p-1 px-3 bg-muted/20 border-t text-[10px] text-muted-foreground flex justify-between">
+      <div className="p-1 px-3 bg-muted/20 border-t text-[10px] text-muted-foreground flex justify-between shrink-0">
         <div className="flex items-center gap-3">
-          <span>Characters: {input.length}</span>
-          <span>Lines: {input.split('\n').length}</span>
+          <span>Chars: {input.length}</span>
+          <span className="hidden xs:inline">Lines: {input.split('\n').length}</span>
         </div>
         <div>Modern JSON System</div>
       </div>
