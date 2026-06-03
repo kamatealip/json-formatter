@@ -75,7 +75,7 @@ export function JsonFormatter() {
   const { resolvedTheme } = useTheme()
   const isDesktop = useMediaQuery("(min-width: 768px)")
   
-  const [input, setInput] = React.useState<string>('{\n  "message": "Paste your JSON here",\n  "status": "success",\n  "features": ["Formatting", "Minifying", "Tree View"],\n  "author": {\n    "name": "Gemini CLI",\n    "role": "AI Engineer"\n  }\n}')
+  const [input, setInput] = React.useState<string>('{\n  "message": "Welcome to KodaJSON",\n  "status": "success",\n  "tagline": "The Ultimate Online JSON Formatter",\n  "features": ["Syntax Highlighting", "Instant Minifying", "Advanced Tree View"],\n  "engine": {\n    "name": "KodaJSON Core",\n    "version": "1.0.0"\n  }\n}')
   const [indentSize, setIndentSize] = React.useState<string>("2")
   const [activeTab, setActiveTab] = React.useState<string>("code")
   
@@ -534,7 +534,7 @@ export function JsonFormatter() {
           <span>Chars: {input.length}</span>
           <span className="hidden xs:inline">Lines: {input.split('\n').length}</span>
         </div>
-        <div>Modern JSON System</div>
+        <div>KodaJSON System</div>
       </div>
     </div>
   )
