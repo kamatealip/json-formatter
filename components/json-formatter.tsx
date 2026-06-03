@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Editor } from "@monaco-editor/react"
+import { Editor, loader, type Monaco } from "@monaco-editor/react"
 import { useTheme } from "next-themes"
 import { 
   Copy, 
@@ -9,7 +9,10 @@ import {
   Eraser, 
   Minimize2, 
   RefreshCw,
-  Info
+  Info,
+  Code2,
+  ListTree,
+  Settings2
 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -32,40 +35,144 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Label } from "@/components/ui/label"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Switch } from "@/components/ui/switch"
+import { JsonTreeView } from "@/components/json-tree-view"
+
+// Configure Monaco loader to ensure themes are ready
+loader.config({ paths: { vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.43.0/min/vs' } });
+
+type CopyFormat = 'json' | 'python'
+type CopyIndent = '2' | '4' | 'tab'
+
+interface CopyConfig {
+  format: CopyFormat
+  indent: CopyIndent
+  minify: boolean
+}
 
 export function JsonFormatter() {
   const { resolvedTheme } = useTheme()
-  const [input, setInput] = React.useState<string>('{\n  "message": "Paste your JSON here",\n  "status": "success"\n}')
+  const [input, setInput] = React.useState<string>('{\n  "message": "Paste your JSON here",\n  "status": "success",\n  "features": ["Formatting", "Minifying", "Tree View"],\n  "author": {\n    "name": "Gemini CLI",\n    "role": "AI Engineer"\n  }\n}')
   const [indentSize, setIndentSize] = React.useState<string>("2")
+  const [activeTab, setActiveTab] = React.useState<string>("code")
+  
+  // Modal State
+  const [isCopyModalOpen, setIsCopyModalOpen] = React.useState(false)
+  const [copyConfig, setCopyConfig] = React.useState<CopyConfig>({
+    format: 'json',
+    indent: '2',
+    minify: false
+  })
 
-  const editorTheme = resolvedTheme === "dark" ? "vs-dark" : "light"
+  const editorTheme = resolvedTheme === "dark" ? "github-dark" : "github-light"
 
-  const { output, error } = React.useMemo(() => {
-    if (!input.trim()) return { output: "", error: null }
+  const handleEditorWillMount = (monaco: Monaco) => {
+    monaco.editor.defineTheme('github-dark', {
+      base: 'vs-dark',
+      inherit: true,
+      rules: [
+        { token: 'string', foreground: 'a5d6ff' },
+        { token: 'keyword', foreground: 'ff7b72' },
+        { token: 'number', foreground: '79c0ff' },
+        { token: 'type', foreground: 'ffa657' },
+        { token: 'comment', foreground: '8b949e' },
+        { token: 'operator', foreground: '79c0ff' },
+      ],
+      colors: {
+        'editor.background': '#0d1117',
+        'editor.foreground': '#c9d1d9',
+        'editor.lineHighlightBackground': '#161b22',
+        'editorCursor.foreground': '#58a6ff',
+        'editorIndentGuide.background': '#21262d',
+        'editor.selectionBackground': '#1f6feb44',
+      }
+    });
+
+    monaco.editor.defineTheme('github-light', {
+      base: 'vs',
+      inherit: true,
+      rules: [
+        { token: 'string', foreground: '0a3069' },
+        { token: 'keyword', foreground: 'cf222e' },
+        { token: 'number', foreground: '0550ae' },
+        { token: 'type', foreground: '953800' },
+        { token: 'comment', foreground: '57606a' },
+        { token: 'operator', foreground: '0550ae' },
+      ],
+      colors: {
+        'editor.background': '#ffffff',
+        'editor.foreground': '#24292f',
+        'editor.lineHighlightBackground': '#f6f8fa',
+        'editorCursor.foreground': '#0969da',
+        'editorIndentGuide.background': '#d8dee4',
+        'editor.selectionBackground': '#add6ff77',
+      }
+    });
+  }
+
+  const { output, parsed, error } = React.useMemo(() => {
+    if (!input.trim()) return { output: "", parsed: null, error: null }
 
     try {
-      const parsed = JSON.parse(input)
+      const parsedData = JSON.parse(input)
       let formatted = ""
       
       if (indentSize === "minify") {
-        formatted = JSON.stringify(parsed)
+        formatted = JSON.stringify(parsedData)
       } else {
         const space = indentSize === "tab" ? "\t" : parseInt(indentSize)
-        formatted = JSON.stringify(parsed, null, space)
+        formatted = JSON.stringify(parsedData, null, space)
       }
       
-      return { output: formatted, error: null }
+      return { output: formatted, parsed: parsedData, error: null }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err)
-      return { output: "", error: msg }
+      return { output: "", parsed: null, error: msg }
     }
   }, [input, indentSize])
 
-  const handleCopy = async () => {
-    if (!output) return
+  const generateCopyText = (data: unknown, config: CopyConfig): string => {
+    let result = ""
+    if (config.minify) {
+      result = JSON.stringify(data)
+    } else {
+      const space = config.indent === "tab" ? "\t" : parseInt(config.indent)
+      result = JSON.stringify(data, null, space)
+    }
+
+    if (config.format === 'python') {
+      result = result
+        .replace(/:\s*true\b/g, ': True')
+        .replace(/:\s*false\b/g, ': False')
+        .replace(/:\s*null\b/g, ': None')
+    }
+    return result
+  }
+
+  const handleCopyAction = async () => {
+    if (!parsed) return
     try {
-      await navigator.clipboard.writeText(output)
-      toast.success("Copied to clipboard")
+      const textToCopy = generateCopyText(parsed, copyConfig)
+      await navigator.clipboard.writeText(textToCopy)
+      toast.success(`Copied as ${copyConfig.format.toUpperCase()}`)
+      setIsCopyModalOpen(false)
     } catch {
       toast.error("Failed to copy")
     }
@@ -114,37 +221,47 @@ export function JsonFormatter() {
             <TooltipTrigger asChild>
               <Button 
                 variant="ghost" 
-                size="icon" 
+                size="sm" 
                 onClick={() => setIndentSize(indentSize === "minify" ? "2" : indentSize)} 
-                className="h-8 w-8 text-primary"
+                className="h-8 gap-1.5 text-primary hover:text-primary hover:bg-primary/10"
               >
                 <RefreshCw className="h-4 w-4" />
+                <span className="text-xs font-medium">Format</span>
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Format JSON</TooltipContent>
+            <TooltipContent>Pretty print JSON</TooltipContent>
           </Tooltip>
 
           <Tooltip>
             <TooltipTrigger asChild>
               <Button 
                 variant="ghost" 
-                size="icon" 
+                size="sm" 
                 onClick={() => setIndentSize("minify")} 
-                className="h-8 w-8"
+                className="h-8 gap-1.5"
               >
                 <Minimize2 className="h-4 w-4" />
+                <span className="text-xs font-medium">Minify</span>
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Minify JSON</TooltipContent>
+            <TooltipContent>Compact JSON</TooltipContent>
           </Tooltip>
+
+          <Separator orientation="vertical" className="h-6 mx-1" />
 
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" onClick={handleClear} className="h-8 w-8 text-destructive">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={handleClear} 
+                className="h-8 gap-1.5 text-destructive hover:text-destructive hover:bg-destructive/10"
+              >
                 <Eraser className="h-4 w-4" />
+                <span className="text-xs font-medium">Clear</span>
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Clear Input</TooltipContent>
+            <TooltipContent>Clear input and output</TooltipContent>
           </Tooltip>
         </div>
 
@@ -163,16 +280,98 @@ export function JsonFormatter() {
             </Tooltip>
           )}
 
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={handleCopy} 
-            disabled={!output}
-            className="h-8 gap-1.5"
-          >
-            <Copy className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">Copy</span>
-          </Button>
+          <Dialog open={isCopyModalOpen} onOpenChange={setIsCopyModalOpen}>
+            <DialogTrigger asChild>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                disabled={!parsed}
+                className="h-8 gap-1.5"
+              >
+                <Copy className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Copy Settings</span>
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <Settings2 className="h-5 w-5 text-primary" />
+                  Copy Settings
+                </DialogTitle>
+                <DialogDescription>
+                  Configure how you want to copy the JSON to your clipboard.
+                </DialogDescription>
+              </DialogHeader>
+              
+              <div className="grid gap-6 py-4">
+                {/* Format Selection */}
+                <div className="space-y-3">
+                  <Label className="text-sm font-semibold">Output Format</Label>
+                  <RadioGroup 
+                    value={copyConfig.format} 
+                    onValueChange={(v: CopyFormat) => setCopyConfig({...copyConfig, format: v})}
+                    className="flex gap-4"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="json" id="f-json" />
+                      <Label htmlFor="f-json" className="font-normal cursor-pointer">JSON</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="python" id="f-python" />
+                      <Label htmlFor="f-python" className="font-normal cursor-pointer">Python Dict</Label>
+                    </div>
+                  </RadioGroup>
+                </div>
+
+                <Separator />
+
+                {/* Minify Toggle */}
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label className="text-sm font-semibold">Minify Content</Label>
+                    <p className="text-xs text-muted-foreground">Remove all whitespace and newlines.</p>
+                  </div>
+                  <Switch 
+                    checked={copyConfig.minify}
+                    onCheckedChange={(v) => setCopyConfig({...copyConfig, minify: v})}
+                  />
+                </div>
+
+                {/* Indentation (only if not minified) */}
+                {!copyConfig.minify && (
+                  <div className="space-y-3">
+                    <Label className="text-sm font-semibold">Indentation</Label>
+                    <RadioGroup 
+                      value={copyConfig.indent} 
+                      onValueChange={(v: CopyIndent) => setCopyConfig({...copyConfig, indent: v})}
+                      className="flex gap-4"
+                    >
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="2" id="i-2" />
+                        <Label htmlFor="i-2" className="font-normal cursor-pointer">2 Spaces</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="4" id="i-4" />
+                        <Label htmlFor="i-4" className="font-normal cursor-pointer">4 Spaces</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="tab" id="i-tab" />
+                        <Label htmlFor="i-tab" className="font-normal cursor-pointer">Tabs</Label>
+                      </div>
+                    </RadioGroup>
+                  </div>
+                )}
+              </div>
+
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setIsCopyModalOpen(false)}>Cancel</Button>
+                <Button onClick={handleCopyAction} className="gap-1.5">
+                  <Copy className="h-3.5 w-3.5" />
+                  Copy to Clipboard
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
 
           <Button 
             variant="default" 
@@ -192,7 +391,7 @@ export function JsonFormatter() {
         <ResizablePanelGroup orientation="horizontal">
           <ResizablePanel defaultSize={50} minSize={20}>
             <div className="h-full flex flex-col">
-              <div className="px-3 py-1.5 text-[10px] uppercase font-bold text-muted-foreground bg-muted/10 border-b flex items-center justify-between">
+              <div className="px-3 py-1.5 text-[10px] uppercase font-bold text-muted-foreground bg-muted/10 border-b flex items-center justify-between h-9">
                 <span>Input</span>
                 <span className="font-normal opacity-70">Paste your raw JSON</span>
               </div>
@@ -200,6 +399,7 @@ export function JsonFormatter() {
                 height="100%"
                 defaultLanguage="json"
                 theme={editorTheme}
+                beforeMount={handleEditorWillMount}
                 value={input}
                 onChange={(v) => setInput(v || "")}
                 options={{
@@ -219,27 +419,47 @@ export function JsonFormatter() {
           
           <ResizablePanel defaultSize={50} minSize={20}>
             <div className="h-full flex flex-col bg-muted/5">
-               <div className="px-3 py-1.5 text-[10px] uppercase font-bold text-muted-foreground bg-muted/10 border-b flex items-center justify-between">
-                <span>Output</span>
-                <span className="font-normal opacity-70">Formatted result</span>
-              </div>
-              <Editor
-                height="100%"
-                defaultLanguage="json"
-                theme={editorTheme}
-                value={output}
-                options={{
-                  readOnly: true,
-                  minimap: { enabled: false },
-                  fontSize: 14,
-                  scrollBeyondLastLine: false,
-                  automaticLayout: true,
-                  padding: { top: 10 },
-                  lineNumbers: "on",
-                  wordWrap: "on",
-                  domReadOnly: true,
-                }}
-              />
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
+                <div className="px-3 text-[10px] uppercase font-bold text-muted-foreground bg-muted/10 border-b flex items-center justify-between h-9 shrink-0">
+                  <span>Output</span>
+                  <TabsList className="h-7 bg-muted/50 p-0.5">
+                    <TabsTrigger value="code" className="h-6 text-[10px] px-2 gap-1.5">
+                      <Code2 className="h-3 w-3" />
+                      Code
+                    </TabsTrigger>
+                    <TabsTrigger value="viewer" className="h-6 text-[10px] px-2 gap-1.5">
+                      <ListTree className="h-3 w-3" />
+                      Viewer
+                    </TabsTrigger>
+                  </TabsList>
+                </div>
+                
+                <div className="flex-1 min-h-0 relative">
+                  <TabsContent value="code" className="h-full m-0 p-0 data-[state=inactive]:hidden">
+                    <Editor
+                      height="100%"
+                      defaultLanguage="json"
+                      theme={editorTheme}
+                      beforeMount={handleEditorWillMount}
+                      value={output}
+                      options={{
+                        readOnly: true,
+                        minimap: { enabled: false },
+                        fontSize: 14,
+                        scrollBeyondLastLine: false,
+                        automaticLayout: true,
+                        padding: { top: 10 },
+                        lineNumbers: "on",
+                        wordWrap: "on",
+                        domReadOnly: true,
+                      }}
+                    />
+                  </TabsContent>
+                  <TabsContent value="viewer" className="h-full m-0 p-0 data-[state=inactive]:hidden bg-background">
+                    <JsonTreeView data={parsed} />
+                  </TabsContent>
+                </div>
+              </Tabs>
             </div>
           </ResizablePanel>
         </ResizablePanelGroup>
@@ -251,7 +471,7 @@ export function JsonFormatter() {
           <span>Characters: {input.length}</span>
           <span>Lines: {input.split('\n').length}</span>
         </div>
-        <div>Monaco Editor Engine</div>
+        <div>Modern JSON System</div>
       </div>
     </div>
   )
