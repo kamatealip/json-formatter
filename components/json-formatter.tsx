@@ -16,7 +16,8 @@ import {
   ChevronRight,
   Sparkles,
   FileUp,
-  RotateCcw
+  RotateCcw,
+  ShieldCheck
 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -47,6 +48,7 @@ import {
 } from "@/components/ui/tabs"
 import { JsonTreeView } from "@/components/json-tree-view"
 import { cn } from "@/lib/utils"
+import { saveEditorState, loadEditorState } from "@/lib/db"
 
 // Configure Monaco loader to ensure themes are ready
 loader.config({ paths: { vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.43.0/min/vs' } });
@@ -67,7 +69,7 @@ const DEFAULT_JSON = `{
   "capabilities": {
     "repair": "Smart Syntax Auto-Fix",
     "search": "Recursive Tree Filtering",
-    "storage": "Local Persistence",
+    "storage": "Infinite Local Persistence",
     "ux": "Drag & Drop Support"
   },
   "features": [
@@ -87,19 +89,30 @@ export function JsonFormatter() {
   const { resolvedTheme } = useTheme()
   const fileInputRef = React.useRef<HTMLInputElement>(null)
 
-  const [input, setInput] = React.useState<string>(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("jsondek-input")
-      if (saved && saved.trim()) return saved
-    }
-    return DEFAULT_JSON
-  })
-
-  React.useEffect(() => {
-    localStorage.setItem("jsondek-input", input)
-  }, [input])
-
+  const [input, setInput] = React.useState<string>(DEFAULT_JSON)
   const [indentSize, setIndentSize] = React.useState<string>("2")
+  const [isDbLoaded, setIsDbLoaded] = React.useState(false)
+
+  // Load from IndexedDB on mount
+  React.useEffect(() => {
+    const init = async () => {
+      const saved = await loadEditorState()
+      if (saved) {
+        setInput(saved.input)
+        setIndentSize(saved.indentSize)
+      }
+      setIsDbLoaded(true)
+    }
+    init()
+  }, [])
+
+  // Save to IndexedDB on change
+  React.useEffect(() => {
+    if (isDbLoaded) {
+      saveEditorState(input, indentSize)
+    }
+  }, [input, indentSize, isDbLoaded])
+
   const [activeTab, setActiveTab] = React.useState<string>("code")
 
   // View State for Mobile/Tablet
@@ -625,8 +638,19 @@ export function JsonFormatter() {
         <div className="flex items-center gap-3">
           <span>Chars: {input.length}</span>
           <span className="hidden xs:inline">Lines: {input.split('\n').length}</span>
+          <Separator orientation="vertical" className="h-3 bg-muted-foreground/20" />
+          <div className="flex items-center gap-1">
+            <ShieldCheck className="h-3 w-3 text-emerald-500/50" />
+            <span>Persistence: {input.length > 1024 * 1024 ? "Infinite DB (Active)" : "Secure Local DB"}</span>
+          </div>
+          {input.length > 2 * 1024 * 1024 && (
+            <div className="hidden sm:flex items-center gap-1 text-primary animate-pulse">
+              <Sparkles className="h-3 w-3" />
+              <span>We&apos;re keeping your large data safe in the local database.</span>
+            </div>
+          )}
         </div>
-        <div>JSONdeck System</div>
+        <div className="font-medium tracking-wider">JSONdeck System</div>
       </div>
     </div>
   )

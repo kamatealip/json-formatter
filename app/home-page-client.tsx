@@ -139,8 +139,8 @@ export default function HomePage() {
               </motion.div>
 
               <TextGenerateEffect
-                words="Format, repair, and explore JSON files locally."
-                className="mb-8 bg-gradient-to-b from-foreground to-foreground/40 bg-clip-text text-5xl leading-[1.1] font-black tracking-tight text-transparent md:text-7xl lg:text-8xl"
+                words="Engineering the perfect JSON workflow."
+                className="mb-8 bg-gradient-to-b from-foreground to-foreground/40 bg-clip-text text-4xl leading-[1.2] font-black tracking-tighter text-transparent md:text-6xl lg:text-7xl"
               />
 
               <motion.p
@@ -149,7 +149,7 @@ export default function HomePage() {
                 transition={{ delay: 0.8, duration: 0.8 }}
                 className="mx-auto mb-12 max-w-2xl text-lg leading-relaxed font-medium text-muted-foreground md:text-2xl"
               >
-                A high-performance utility that handles messy, broken JSON with
+                A high-performance &quot;deck&quot; that handles messy, broken JSON with
                 real-time detection and smart auto-repair.
                 <span className="text-foreground/80">
                   {" "}
@@ -165,9 +165,9 @@ export default function HomePage() {
               >
                 <Link href="/format">
                   <HoverBorderGradient
-                    containerClassName="rounded-full"
+                    containerClassName="rounded-full shadow-[0_0_30px_-5px_var(--primary)]"
                     as="button"
-                    className="flex items-center gap-2 bg-background px-8 py-3 text-lg font-bold text-foreground"
+                    className="flex items-center gap-2 bg-background px-10 py-4 text-lg font-black text-foreground"
                   >
                     Launch Application
                     <ArrowRight className="h-5 w-5" />
@@ -188,7 +188,64 @@ export default function HomePage() {
                   </Link>
                 </Button>
               </motion.div>
+
+              {/* Animated Privacy Visualization */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.5, duration: 1 }}
+                className="mt-16 flex flex-col items-center gap-6"
+              >
+                <div className="relative flex items-center justify-center">
+                  {/* Outer Pulsing Rings */}
+                  <motion.div 
+                    animate={{ scale: [1, 1.2, 1], opacity: [0.1, 0.2, 0.1] }}
+                    transition={{ duration: 4, repeat: Infinity }}
+                    className="absolute h-32 w-32 rounded-full border border-primary/30" 
+                  />
+                  <motion.div 
+                    animate={{ scale: [1, 1.4, 1], opacity: [0.05, 0.1, 0.05] }}
+                    transition={{ duration: 4, delay: 1, repeat: Infinity }}
+                    className="absolute h-32 w-32 rounded-full border border-primary/20" 
+                  />
+                  
+                  {/* Rotating Orbitals */}
+                  <motion.div 
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                    className="absolute h-48 w-48"
+                  >
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 h-2 w-2 rounded-full bg-primary shadow-[0_0_10px_var(--primary)]" />
+                  </motion.div>
+                  <motion.div 
+                    animate={{ rotate: -360 }}
+                    transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+                    className="absolute h-36 w-36"
+                  >
+                    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 h-1.5 w-1.5 rounded-full bg-primary/40" />
+                  </motion.div>
+
+                  {/* Central Shield Icon */}
+                  <div className="relative z-10 flex h-16 w-16 items-center justify-center rounded-2xl border border-primary/20 bg-background/80 shadow-[0_0_20px_-5px_var(--primary)] backdrop-blur-sm">
+                    <ShieldCheck className="h-8 w-8 text-primary" />
+                  </div>
+                </div>
+                
+                <div className="flex flex-col items-center gap-1">
+                  <span className="text-[10px] font-black tracking-[0.4em] text-primary uppercase">
+                    Privacy-First Protocol
+                  </span>
+                  <span className="text-xs font-medium text-muted-foreground/60">
+                    100% Client-Side Processing • Encrypted Local Storage
+                  </span>
+                </div>
+              </motion.div>
             </div>
+
+            {/* Floating Data Shards */}
+            <DataShard className="top-1/4 -left-12 rotate-12 delay-75" />
+            <DataShard className="top-1/3 -right-8 -rotate-12 delay-200" />
+            <DataShard className="bottom-1/4 left-1/4 rotate-45 delay-500 opacity-20" />
 
             {/* Code Window Animation Mockup */}
             <motion.div
@@ -197,45 +254,64 @@ export default function HomePage() {
               transition={{ delay: 1.2, duration: 1, ease: "easeOut" }}
               className="group relative mx-auto mt-24 max-w-5xl"
             >
-              <div className="absolute inset-0 rounded-full bg-primary/20 opacity-50 blur-[120px] transition-opacity duration-1000 group-hover:opacity-70" />
-              <div className="relative overflow-hidden rounded-3xl border border-border bg-background/40 shadow-[0_0_80px_-20px_rgba(0,0,0,0.1)] dark:shadow-[0_0_80px_-20px_rgba(255,255,255,0.1)] backdrop-blur-3xl">
-                <div className="flex items-center justify-between border-b border-border bg-muted/30 px-6 py-4">
+              <div className="absolute inset-0 rounded-full bg-primary/10 opacity-40 blur-[140px] transition-opacity duration-1000 group-hover:opacity-60" />
+              <div className="relative overflow-hidden rounded-3xl border border-border bg-background/60 shadow-[0_0_80px_-20px_rgba(0,0,0,0.1)] dark:shadow-[0_0_80px_-20px_rgba(255,255,255,0.05)] backdrop-blur-3xl">
+                <div className="flex items-center justify-between border-b border-border bg-muted/40 px-6 py-4">
                   <div className="flex gap-2">
                     <div className="h-3.5 w-3.5 rounded-full border border-red-500/50 bg-red-500/30" />
                     <div className="h-3.5 w-3.5 rounded-full border border-amber-500/50 bg-amber-500/30" />
                     <div className="h-3.5 w-3.5 rounded-full border border-emerald-500/50 bg-emerald-500/30" />
                   </div>
-                  <div className="text-[10px] font-black tracking-[0.3em] text-muted-foreground/30 uppercase">
-                    JSONDEK_KERNEL_CORE.v1
+                  <div className="flex items-center gap-3">
+                    <div className="h-2 w-2 animate-pulse rounded-full bg-emerald-500" />
+                    <div className="text-[10px] font-black tracking-[0.3em] text-muted-foreground/40 uppercase">
+                      JSONDEK_KERNEL_CORE.v2
+                    </div>
                   </div>
                 </div>
                 <div className="grid grid-cols-1 divide-y divide-border p-0 font-mono text-sm md:grid-cols-2 md:divide-x md:divide-y-0">
-                  <div className="bg-muted/10 p-10">
-                    <div className="mb-6 flex items-center gap-3 text-red-500">
-                      <Terminal className="h-4 w-4" />
+                  <div className="bg-muted/5 p-10 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-4">
+                      <Terminal className="h-4 w-4 text-red-500/40" />
+                    </div>
+                    <div className="mb-6 flex items-center gap-3 text-red-500/80">
                       <span className="text-[10px] font-black tracking-widest uppercase">
-                        Syntax Violations Detected
+                        Dirty Input
                       </span>
                     </div>
-                    <div className="space-y-1.5 opacity-40">
-                      <div className="text-red-500">{"{"}</div>
-                      <div className="pl-6 text-red-500">raw_data: 0xFA22,</div>
-                      <div className="pl-6 text-red-500">
+                    <div className="space-y-1.5 font-mono">
+                      <div className="text-red-500/50">{"{"}</div>
+                      <div className="pl-6 text-red-500/50 flex items-center gap-2">
+                        raw_data: 0xFA22,
+                        <motion.div 
+                          animate={{ opacity: [0, 1, 0] }} 
+                          transition={{ repeat: Infinity, duration: 0.8 }}
+                          className="h-4 w-2 bg-red-500/50" 
+                        />
+                      </div>
+                      <div className="pl-6 text-red-500/50">
                         {"'status': \"unstable\","}
                       </div>
-                      <div className="pl-6 text-red-500">active: true,</div>
-                      <div className="text-red-500">{"}"}</div>
+                      <div className="pl-6 text-red-500/50">active: true,</div>
+                      <div className="text-red-500/50">{"}"}</div>
                     </div>
                   </div>
-                  <div className="group/pane relative overflow-hidden bg-muted/5 p-10">
-                    <div className="absolute inset-0 animate-pulse bg-primary/5" />
+                  <div className="group/pane relative overflow-hidden bg-primary/[0.02] p-10">
+                    <motion.div 
+                      animate={{ 
+                        opacity: [0.03, 0.08, 0.03],
+                        backgroundPosition: ["0% 0%", "100% 100%"] 
+                      }}
+                      transition={{ duration: 5, repeat: Infinity }}
+                      className="absolute inset-0 bg-[radial-gradient(circle_at_center,var(--primary)_0%,transparent_100%)] bg-[size:200%_200%]" 
+                    />
                     <div className="relative z-10 mb-6 flex items-center gap-3 text-emerald-500">
                       <CheckCircle2 className="h-4 w-4" />
                       <span className="text-[10px] font-black tracking-widest uppercase">
-                        Normalized Output
+                        Healed Primitives
                       </span>
                     </div>
-                    <div className="relative z-10 space-y-1.5">
+                    <div className="relative z-10 space-y-1.5 font-mono">
                       <div className="text-foreground/80">{"{"}</div>
                       <div className="pl-6">
                         <span className="text-blue-500 dark:text-blue-400">
@@ -264,10 +340,13 @@ export default function HomePage() {
                     <motion.div
                       animate={{ opacity: [0.1, 0.3, 0.1] }}
                       transition={{ duration: 4, repeat: Infinity }}
-                      className="mt-12 space-y-1 border-t border-border pt-6 text-[10px] text-muted-foreground/30"
+                      className="mt-12 space-y-1 border-t border-border pt-6 text-[10px] text-muted-foreground/30 font-black"
                     >
-                      <div>[INTERNAL] Applied RFC-8259 normalization</div>
-                      <div>[SUCCESS] Repair duration: 0.04ms</div>
+                      <div>[SYSTEM] APPLIED RFC-8259 NORMALIZATION</div>
+                      <div className="flex items-center gap-2">
+                        <div className="h-1 w-1 rounded-full bg-emerald-500" />
+                        [SUCCESS] REPAIR DURATION: 0.04MS
+                      </div>
                     </motion.div>
                   </div>
                 </div>
@@ -586,6 +665,32 @@ export default function HomePage() {
         </div>
       </footer>
     </div>
+  )
+}
+
+function DataShard({ className }: { className?: string }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ 
+        opacity: [0.2, 0.4, 0.2],
+        y: [0, -20, 0],
+        rotate: [0, 5, 0]
+      }}
+      transition={{ 
+        duration: 8, 
+        repeat: Infinity, 
+        ease: "easeInOut" 
+      }}
+      className={cn(
+        "absolute hidden lg:flex items-center gap-2 rounded-lg border border-primary/20 bg-primary/5 px-3 py-1.5 backdrop-blur-md pointer-events-none",
+        className
+      )}
+    >
+      <div className="h-1.5 w-1.5 rounded-full bg-primary shadow-[0_0_8px_var(--primary)]" />
+      <div className="h-1 w-12 rounded-full bg-primary/20" />
+      <div className="h-1 w-8 rounded-full bg-primary/10" />
+    </motion.div>
   )
 }
 
