@@ -53,9 +53,10 @@ export default function Page() {
           <div className="flex shrink-0 items-center justify-between px-1 text-[10px] text-muted-foreground/60">
             <p>© 2026 KodaJSON • Private & Secure Local Processing</p>
             <div className="flex gap-4">
-              <a href="#" className="hover:text-foreground transition-colors">Privacy</a>
-              <a href="#" className="hover:text-foreground transition-colors">Terms</a>
-              <a href="https://github.com" className="hover:text-foreground transition-colors">Github</a>
+              <Link href="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
+              <Link href="/terms" className="hover:text-foreground transition-colors">Terms</Link>
+              <Link href="/about" className="hover:text-foreground transition-colors">About</Link>
+              <Link href="/contact" className="hover:text-foreground transition-colors">Contact</Link>
             </div>
           </div>
         </div>

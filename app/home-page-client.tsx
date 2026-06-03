@@ -221,7 +221,7 @@ export default function HomePage() {
                       <div className="text-red-500">{"{"}</div>
                       <div className="pl-6 text-red-500">raw_data: 0xFA22,</div>
                       <div className="pl-6 text-red-500">
-                        &apos;status&apos;: &quot;unstable&quot;,
+                        {"'status': \"unstable\","}
                       </div>
                       <div className="pl-6 text-red-500">active: true,</div>
                       <div className="text-red-500">{"}"}</div>
@@ -530,18 +530,18 @@ export default function HomePage() {
                 </li>
                 <li>
                   <Link
-                    href="#"
+                    href="/about"
                     className="transition-colors hover:text-primary"
                   >
-                    Privacy Policy
+                    About Us
                   </Link>
                 </li>
                 <li>
                   <Link
-                    href="#"
+                    href="/contact"
                     className="transition-colors hover:text-primary"
                   >
-                    Documentation
+                    Contact
                   </Link>
                 </li>
               </ul>
@@ -549,23 +549,23 @@ export default function HomePage() {
 
             <div className="space-y-6">
               <h4 className="text-[10px] font-black tracking-[0.3em] text-muted-foreground/30 uppercase">
-                Connect
+                Legal
               </h4>
               <ul className="space-y-4 font-bold text-muted-foreground">
                 <li>
                   <Link
-                    href="#"
+                    href="/privacy"
                     className="transition-colors hover:text-primary"
                   >
-                    Discord
+                    Privacy Policy
                   </Link>
                 </li>
                 <li>
                   <Link
-                    href="#"
+                    href="/terms"
                     className="transition-colors hover:text-primary"
                   >
-                    X / Twitter
+                    Terms & Conditions
                   </Link>
                 </li>
               </ul>

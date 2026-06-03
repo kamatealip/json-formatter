@@ -180,26 +180,42 @@ export function JsonFormatter() {
     });
   }
 
-  const { output, parsed, error } = React.useMemo(() => {
-    if (!input.trim()) return { output: "", parsed: null, error: null }
+  const [isPending, startTransition] = React.useTransition()
+  const deferredInput = React.useDeferredValue(input)
 
-    try {
-      const parsedData = JSON.parse(input)
-      let formatted = ""
-      
-      if (indentSize === "minify") {
-        formatted = JSON.stringify(parsedData)
-      } else {
-        const space = indentSize === "tab" ? "\t" : parseInt(indentSize)
-        formatted = JSON.stringify(parsedData, null, space)
+  const [processedResult, setProcessedResult] = React.useState<{
+    output: string
+    parsed: any
+    error: string | null
+  }>({ output: "", parsed: null, error: null })
+
+  React.useEffect(() => {
+    startTransition(() => {
+      if (!deferredInput.trim()) {
+        setProcessedResult({ output: "", parsed: null, error: null })
+        return
       }
-      
-      return { output: formatted, parsed: parsedData, error: null }
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : String(err)
-      return { output: "", parsed: null, error: msg }
-    }
-  }, [input, indentSize])
+
+      try {
+        const parsedData = JSON.parse(deferredInput)
+        let formatted = ""
+
+        if (indentSize === "minify") {
+          formatted = JSON.stringify(parsedData)
+        } else {
+          const space = indentSize === "tab" ? "\t" : parseInt(indentSize)
+          formatted = JSON.stringify(parsedData, null, space)
+        }
+
+        setProcessedResult({ output: formatted, parsed: parsedData, error: null })
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : String(err)
+        setProcessedResult({ output: "", parsed: null, error: msg })
+      }
+    })
+  }, [deferredInput, indentSize])
+
+  const { output, parsed, error } = processedResult
 
   const generateCopyText = (data: unknown, config: CopyConfig): string => {
     let result = ""
