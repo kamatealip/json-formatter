@@ -11,7 +11,6 @@ import {
   ListTree,
   Terminal,
   ShieldCheck,
-  CheckCircle2,
   Plus,
   Download,
   History,
@@ -22,8 +21,6 @@ import {
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { cn } from "@/lib/utils"
-import { Spotlight } from "@/components/ui/spotlight"
-import { TextGenerateEffect } from "@/components/ui/text-generate-effect"
 import { HoverBorderGradient } from "@/components/ui/hover-border-gradient"
 
 const features = [
@@ -32,30 +29,34 @@ const features = [
     title: "Smart Syntax Repair",
     description:
       "Instantly fixes common structural errors like unquoted keys, trailing commas, and mismatched single/double quotes.",
+    className: "lg:col-span-2",
   },
   {
     icon: <Code2 className="h-6 w-6" />,
     title: "Monaco Editor Engine",
     description:
       "The same engine that powers VS Code. Enjoy native syntax highlighting, bracket matching, and advanced code folding.",
+    className: "lg:col-span-1",
   },
   {
     icon: <ListTree className="h-6 w-6" />,
     title: "Recursive Tree View",
     description:
       "Navigate complex, nested objects with a structured hierarchical viewer. Perfect for deep data exploration.",
-  },
-  {
-    icon: <Search className="h-6 w-6" />,
-    title: "Deep Search",
-    description:
-      "Recursively search through thousands of lines of data. Instantly find keys or values across any depth.",
+    className: "lg:col-span-1",
   },
   {
     icon: <Lock className="h-6 w-6" />,
     title: "100% Private Worker",
     description:
       "Your data never leaves your browser. Processing runs in a dedicated background worker for maximum security.",
+    className: "lg:col-span-2",
+  },
+  {
+    icon: <Search className="h-6 w-6" />,
+    title: "Deep Search",
+    description:
+      "Recursively search through thousands of lines of data. Instantly find keys or values across any depth.",
   },
   {
     icon: <History className="h-6 w-6" />,
@@ -113,166 +114,103 @@ export default function HomePage() {
       </nav>
 
       <main className="flex-1">
-        {/* Professional Split-Layout Hero */}
+        {/* Simplified Centered Hero with Moving Gradient */}
         <section className="relative flex min-h-[90vh] items-center justify-center overflow-hidden py-24">
-          <Spotlight
-            className="-top-40 left-0 md:-top-20 md:left-60"
-            fill="currentColor"
-          />
+          {/* Moving Gradient Background */}
+          <div className="absolute inset-0 z-0">
+            <motion.div
+              animate={{
+                scale: [1, 1.1, 1],
+                opacity: [0.3, 0.5, 0.3],
+              }}
+              transition={{
+                duration: 8,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+              className="absolute -top-[20%] -left-[10%] h-[70%] w-[70%] rounded-full bg-primary/20 blur-[120px]"
+            />
+            <motion.div
+              animate={{
+                scale: [1, 1.2, 1],
+                opacity: [0.2, 0.4, 0.2],
+              }}
+              transition={{
+                duration: 10,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: 1,
+              }}
+              className="absolute -right-[10%] -bottom-[20%] h-[70%] w-[70%] rounded-full bg-primary/10 blur-[120px]"
+            />
+          </div>
 
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_40%,#000_70%,transparent_100%)] bg-[size:40px_40px]" />
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] bg-[size:40px_40px]" />
 
-          <div className="relative z-10 container mx-auto px-6">
-            <div className="grid grid-cols-1 items-center gap-16 lg:grid-cols-2">
-              <div className="max-w-2xl text-left">
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.5 }}
-                  className="mb-8 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5 text-[10px] font-black tracking-[0.2em] text-primary uppercase"
-                >
-                  <Zap className="h-3 w-3 fill-current" />
-                  <span>Modern JSON Engineering</span>
-                </motion.div>
-
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1, duration: 0.8 }}
-                >
-                  <h1 className="mb-8 bg-gradient-to-b from-foreground to-foreground/40 bg-clip-text text-5xl leading-[1.1] font-black tracking-tighter text-transparent md:text-7xl lg:text-8xl">
-                    The Ultimate JSON <br />
-                    <span className="text-primary">Workflow.</span>
-                  </h1>
-                </motion.div>
-
-                <motion.p
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2, duration: 0.8 }}
-                  className="mb-12 text-lg leading-relaxed font-medium text-muted-foreground md:text-2xl"
-                >
-                  A high-performance formatter that handles messy, broken JSON with real-time detection and smart auto-repair. 
-                  <span className="text-foreground/80"> Zero server-side overhead. Absolute privacy.</span>
-                </motion.p>
-
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3, duration: 0.8 }}
-                  className="flex flex-col items-center gap-6 sm:flex-row"
-                >
-                  <Link href="/format">
-                    <HoverBorderGradient
-                      containerClassName="rounded-full shadow-[0_0_30px_-5px_rgba(59,130,246,0.5)]"
-                      as="button"
-                      className="flex items-center gap-2 bg-background px-10 py-4 text-lg font-black text-foreground"
-                    >
-                      Launch Application
-                      <ArrowRight className="h-5 w-5" />
-                    </HoverBorderGradient>
-                  </Link>
-
-                  <Button
-                    asChild
-                    variant="link"
-                    className="group text-lg font-bold text-muted-foreground hover:text-foreground"
-                  >
-                    <Link
-                      href="#capabilities"
-                      className="flex items-center gap-2"
-                    >
-                      Explore Features
-                      <div className="h-px w-0 bg-muted-foreground transition-all duration-300 group-hover:w-8" />
-                    </Link>
-                  </Button>
-                </motion.div>
+          <div className="relative z-10 container mx-auto px-8 md:px-12 text-center">
+            <div className="mx-auto max-w-4xl">
+              <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5 text-[10px] font-black tracking-[0.2em] text-primary">
+                <Zap className="h-3 w-3 fill-current" />
+                <span>Working with JSON made easy</span>
               </div>
 
-              {/* Professional Visual Element */}
-              <div className="relative hidden lg:block">
-                <motion.div
-                  initial={{ opacity: 0, x: 40, rotateY: -10 }}
-                  animate={{ opacity: 1, x: 0, rotateY: 0 }}
-                  transition={{ duration: 1, ease: "easeOut" }}
-                  className="perspective-1000"
+              <h1 className="mb-8 bg-gradient-to-b from-foreground to-foreground/40 bg-clip-text text-4xl leading-[1.1] font-black tracking-tighter text-transparent md:text-6xl lg:text-8xl">
+                The Ultimate JSON <br />
+                <span className="text-primary">Workflow.</span>
+              </h1>
+
+              <p className="mx-auto mb-12 max-w-2xl text-lg leading-relaxed font-medium text-muted-foreground md:text-2xl">
+                A high-performance formatter that handles messy, broken JSON
+                with real-time detection and smart auto-repair.
+                <span className="mt-2 block text-foreground/80">
+                  {" "}
+                  Zero server-side overhead. Absolute privacy.
+                </span>
+              </p>
+
+              <div className="flex flex-col items-center justify-center gap-6 sm:flex-row">
+                <Link href="/format">
+                  <HoverBorderGradient
+                    containerClassName="rounded-full shadow-[0_0_30px_-5px_rgba(59,130,246,0.5)]"
+                    as="button"
+                    className="flex items-center gap-2 bg-background px-10 py-4 text-lg font-black text-foreground"
+                  >
+                    Launch Application
+                    <ArrowRight className="h-5 w-5" />
+                  </HoverBorderGradient>
+                </Link>
+
+                <Button
+                  asChild
+                  variant="link"
+                  className="group text-lg font-bold text-muted-foreground hover:text-foreground"
                 >
-                  <div className="relative overflow-hidden rounded-3xl border border-border bg-background/60 shadow-2xl backdrop-blur-3xl p-1">
-                    <div className="flex flex-col rounded-[1.25rem] bg-muted/20 overflow-hidden">
-                      <div className="flex items-center justify-between border-b border-border bg-muted/40 px-6 py-4">
-                        <div className="flex gap-2">
-                          <div className="h-3 w-3 rounded-full bg-red-500/30 border border-red-500/50" />
-                          <div className="h-3 w-3 rounded-full bg-amber-500/30 border border-amber-500/50" />
-                          <div className="h-3 w-3 rounded-full bg-emerald-500/30 border border-emerald-500/50" />
-                        </div>
-                        <div className="text-[10px] font-black tracking-[0.3em] text-muted-foreground/40 uppercase">
-                          JSONLIX_CORE_ENGINE
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-1 divide-y divide-border font-mono text-sm">
-                        <div className="p-8 bg-muted/5">
-                          <div className="flex items-center gap-3 text-red-500/80 mb-4">
-                            <Terminal className="h-4 w-4" />
-                            <span className="text-[10px] font-black tracking-widest uppercase">Input Data</span>
-                          </div>
-                          <div className="space-y-1 opacity-50">
-                            <div>{"{"}</div>
-                            <div className="pl-6">name: &apos;jsonlix&apos;,</div>
-                            <div className="pl-6">active: true,</div>
-                            <div className="pl-6 text-red-400 font-bold underline decoration-wavy underline-offset-4">missing_comma</div>
-                            <div>{"}"}</div>
-                          </div>
-                        </div>
-                        <div className="p-8 bg-primary/[0.03]">
-                          <div className="flex items-center gap-3 text-emerald-500 mb-4">
-                            <CheckCircle2 className="h-4 w-4" />
-                            <span className="text-[10px] font-black tracking-widest uppercase">Auto-Repaired</span>
-                          </div>
-                          <div className="space-y-1">
-                            <div className="text-foreground/80">{"{"}</div>
-                            <div className="pl-6 text-blue-400">&quot;name&quot;: <span className="text-emerald-400">&quot;jsonlix&quot;</span>,</div>
-                            <div className="pl-6 text-blue-400">&quot;active&quot;: <span className="text-emerald-400">true</span>,</div>
-                            <div className="pl-6 text-blue-400">&quot;status&quot;: <span className="text-emerald-400">&quot;ready&quot;</span></div>
-                            <div className="text-foreground/80">{"}"}</div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Decorative Shards */}
-                  <motion.div 
-                    animate={{ y: [0, -15, 0] }}
-                    transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                    className="absolute -right-8 -top-8 rounded-2xl border border-primary/20 bg-primary/10 p-4 shadow-xl backdrop-blur-md"
+                  <Link
+                    href="#capabilities"
+                    className="flex items-center gap-2"
                   >
-                    <Sparkles className="h-6 w-6 text-primary" />
-                  </motion.div>
-                  <motion.div 
-                    animate={{ y: [0, 15, 0] }}
-                    transition={{ duration: 4, delay: 1, repeat: Infinity, ease: "easeInOut" }}
-                    className="absolute -left-12 -bottom-12 rounded-2xl border border-primary/20 bg-primary/10 p-6 shadow-xl backdrop-blur-md"
-                  >
-                    <ShieldCheck className="h-8 w-8 text-primary" />
-                  </motion.div>
-                </motion.div>
+                    Explore Features
+                    <div className="h-px w-0 bg-muted-foreground transition-all duration-300 group-hover:w-8" />
+                  </Link>
+                </Button>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Core Capabilities - Auto-Scroll Marquee */}
+        {/* Core Capabilities - Bento Grid */}
         <section
           id="capabilities"
           className="relative overflow-hidden border-y border-border bg-muted/5 py-32"
         >
-          <div className="container mx-auto mb-20 px-6">
-            <div className="flex flex-col justify-between gap-8 md:flex-row md:items-end">
+          <div className="container mx-auto mb-20 px-8 md:px-12">
+            <div className="flex flex-col justify-between gap-8 md:flex-row md:items-end max-w-6xl mx-auto">
               <div className="max-w-2xl">
                 <motion.h2
                   initial={{ opacity: 0, x: -20 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.8 }}
+                  viewport={{ once: true }}
                   className="mb-6 bg-gradient-to-r from-foreground to-foreground/40 bg-clip-text text-4xl font-black tracking-tighter text-transparent md:text-6xl"
                 >
                   Professional-grade primitives.
@@ -281,6 +219,7 @@ export default function HomePage() {
                   initial={{ opacity: 0, x: -20 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.8, delay: 0.2 }}
+                  viewport={{ once: true }}
                   className="text-xl font-medium text-muted-foreground"
                 >
                   Engineered for developers who demand speed, privacy, and
@@ -294,14 +233,30 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="pause-marquee flex overflow-hidden">
+          <div className="container mx-auto px-8 md:px-12">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto">
+              {features.slice(0, 4).map((feature, index) => (
+                <BentoCard
+                  key={index}
+                  icon={feature.icon}
+                  title={feature.title}
+                  description={feature.description}
+                  className={feature.className}
+                  index={index}
+                />
+              ))}
+            </div>
+          </div>
+
+          <div className="pause-marquee mt-20 flex overflow-hidden">
             <motion.div
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               transition={{ duration: 1 }}
+              viewport={{ once: true }}
               className="animate-marquee flex gap-8 px-4 whitespace-nowrap"
             >
-              {features.map((feature, index) => (
+              {features.slice(4).map((feature, index) => (
                 <FeatureCard
                   key={`f1-${index}`}
                   icon={feature.icon}
@@ -314,7 +269,7 @@ export default function HomePage() {
               className="animate-marquee flex gap-8 px-4 whitespace-nowrap"
               aria-hidden="true"
             >
-              {features.map((feature, index) => (
+              {features.slice(4).map((feature, index) => (
                 <FeatureCard
                   key={`f2-${index}`}
                   icon={feature.icon}
@@ -328,13 +283,66 @@ export default function HomePage() {
           <div className="absolute bottom-0 left-0 h-px w-full bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
         </section>
 
+        {/* How it Works Section */}
+        <section className="relative overflow-hidden py-32">
+          <div className="container mx-auto px-8 md:px-12">
+            <div className="mb-24 text-center">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5 text-[10px] font-black tracking-[0.2em] text-primary uppercase"
+              >
+                <span>Workflow Overview</span>
+              </motion.div>
+              <motion.h2
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.1 }}
+                className="mb-6 text-4xl font-black tracking-tighter md:text-6xl"
+              >
+                From messy raw data <br /> to{" "}
+                <span className="text-primary">pure clarity.</span>
+              </motion.h2>
+            </div>
+
+            <div className="relative grid grid-cols-1 gap-12 md:grid-cols-3 max-w-6xl mx-auto">
+              <div className="absolute top-1/2 left-0 z-0 hidden h-px w-full -translate-y-1/2 bg-border md:block" />
+
+              <StepItem
+                number="01"
+                title="Input"
+                description="Paste your raw JSON, URL, or drop a file directly into the high-performance editor."
+                icon={<Terminal className="h-8 w-8" />}
+                delay={0}
+              />
+              <StepItem
+                number="02"
+                title="Process"
+                description="The local worker analyzes, repairs, and formats your data with millisecond latency."
+                icon={<Zap className="h-8 w-8" />}
+                delay={0.2}
+              />
+              <StepItem
+                number="03"
+                title="Explore"
+                description="Navigate the tree, search deep paths, and export your optimized data instantly."
+                icon={<ListTree className="h-8 w-8" />}
+                delay={0.4}
+              />
+            </div>
+          </div>
+        </section>
+
         {/* FAQ Section */}
         <section className="relative py-32">
-          <div className="container mx-auto px-6">
+          <div className="container mx-auto px-8 md:px-12">
             <div className="mx-auto max-w-4xl">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
                 className="mb-20 text-center"
               >
                 <h2 className="mb-6 text-4xl font-black tracking-tighter md:text-6xl">
@@ -343,7 +351,13 @@ export default function HomePage() {
                 <div className="mx-auto h-1 w-24 rounded-full bg-primary" />
               </motion.div>
 
-              <div className="space-y-4">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.2 }}
+                className="space-y-4"
+              >
                 <FAQItem
                   question="Is there a reliable JSON formatter online?"
                   answer="Yes, JSONlix is a professional-grade, privacy-first online JSON formatter designed for developers who need fast and secure data processing."
@@ -368,7 +382,7 @@ export default function HomePage() {
                   question="How to read and navigate large JSON files?"
                   answer="JSONlix features an advanced Tree View for hierarchical navigation and a recursive search tool to find specific keys or values in seconds, regardless of file size."
                 />
-              </div>
+              </motion.div>
             </div>
           </div>
         </section>
@@ -376,108 +390,269 @@ export default function HomePage() {
         {/* CTA Section */}
         <section className="relative overflow-hidden border-t border-border bg-muted/5 py-40">
           <div className="absolute inset-0 translate-y-1/2 scale-150 rounded-full bg-primary/5 blur-[120px]" />
-          <div className="relative z-10 container mx-auto px-6 text-center">
-            <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              className="mb-10 text-5xl font-black tracking-tighter md:text-7xl"
-            >
-              Elevate your data workflow.
-            </motion.h2>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-            >
-              <Button
-                asChild
-                size="lg"
-                className="h-16 rounded-full bg-foreground px-12 text-xl font-black text-background shadow-[0_0_40px_-10px_rgba(0,0,0,0.3)] dark:shadow-[0_0_40px_-10px_rgba(255,255,255,0.3)] transition-transform hover:scale-105 hover:bg-foreground/90 active:scale-95"
+          <div className="relative z-10 container mx-auto px-8 md:px-12 text-center">
+            <div className="max-w-4xl mx-auto">
+              <motion.h2
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="mb-10 text-5xl font-black tracking-tighter md:text-7xl"
               >
-                <Link href="/format">Start Formatting Now</Link>
-              </Button>
-            </motion.div>
-            <p className="mt-8 text-[10px] font-black tracking-[0.5em] text-muted-foreground/30 uppercase">
-              Instant access • No registration • OSS Core
-            </p>
+                Elevate your data workflow.
+              </motion.h2>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.2 }}
+              >
+                <Button
+                  asChild
+                  size="lg"
+                  className="h-16 rounded-full bg-foreground px-12 text-xl font-black text-background shadow-[0_0_40px_-10px_rgba(0,0,0,0.3)] transition-transform hover:scale-105 hover:bg-foreground/90 active:scale-95 dark:shadow-[0_0_40px_-10px_rgba(255,255,255,0.3)]"
+                >
+                  <Link href="/format">Start Formatting Now</Link>
+                </Button>
+              </motion.div>
+              <p className="mt-8 text-[10px] font-black tracking-[0.5em] text-muted-foreground/30 uppercase">
+                Instant access • No registration • OSS Core
+              </p>
+            </div>
           </div>
         </section>
 
         {/* SEO Content Section - Fixed Hydration Mismatch */}
         <section className="relative border-t border-border bg-background py-32">
-          <div className="container mx-auto px-6">
-            <div className="mx-auto max-w-4xl prose prose-invert prose-p:text-muted-foreground prose-headings:text-foreground prose-strong:text-primary">
+          <div className="container mx-auto px-8 md:px-12">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="prose prose-invert prose-p:text-muted-foreground prose-headings:text-foreground prose-strong:text-primary mx-auto max-w-4xl"
+            >
               <h2 className="mb-8 bg-gradient-to-r from-foreground to-foreground/40 bg-clip-text text-3xl font-black tracking-tighter text-transparent md:text-5xl">
                 Ultimate Guide to Using an Online JSON Formatter
               </h2>
 
               <div className="space-y-8 text-lg leading-relaxed text-muted-foreground">
                 <p>
-                  In the modern landscape of software development, JSON (JavaScript Object Notation) has become the de facto standard for data exchange. Whether you are working with REST APIs, configuration files, or complex databases, you will inevitably encounter JSON data. However, raw JSON is often minified or poorly formatted, making it difficult for humans to read and debug. This is where a high-quality <strong className="text-primary">json formatter</strong> becomes an essential part of your toolkit.
+                  In the modern landscape of software development, JSON
+                  (JavaScript Object Notation) has become the de facto standard
+                  for data exchange. Whether you are working with REST APIs,
+                  configuration files, or complex databases, you will inevitably
+                  encounter JSON data. However, raw JSON is often minified or
+                  poorly formatted, making it difficult for humans to read and
+                  debug. This is where a high-quality{" "}
+                  <strong className="text-primary">json formatter</strong>{" "}
+                  becomes an essential part of your toolkit.
                 </p>
 
-                <h3 className="text-2xl font-bold text-foreground">What is a JSON Formatter?</h3>
+                <h3 className="text-2xl font-bold text-foreground">
+                  What is a JSON Formatter?
+                </h3>
                 <p>
-                  A <strong className="text-primary">json formatter</strong> is a tool that takes raw, minified, or messy JSON strings and converts them into a structured, well-indented, and human-readable format. By applying consistent indentation (usually 2 or 4 spaces) and syntax highlighting, an <strong className="text-primary">online json formatter</strong> allows developers to quickly scan data structures, identify keys, and understand the hierarchy of objects and arrays.
+                  A <strong className="text-primary">json formatter</strong> is
+                  a tool that takes raw, minified, or messy JSON strings and
+                  converts them into a structured, well-indented, and
+                  human-readable format. By applying consistent indentation
+                  (usually 2 or 4 spaces) and syntax highlighting, an{" "}
+                  <strong className="text-primary">
+                    online json formatter
+                  </strong>{" "}
+                  allows developers to quickly scan data structures, identify
+                  keys, and understand the hierarchy of objects and arrays.
                 </p>
 
-                <h3 className="text-2xl font-bold text-foreground">Why You Need an Online JSON Formatter</h3>
+                <h3 className="text-2xl font-bold text-foreground">
+                  Why You Need an Online JSON Formatter
+                </h3>
                 <p>
-                  Many developers wonder why they should use an <strong className="text-primary">online json formatter</strong> instead of just using their built-in IDE features. While IDEs like VS Code are powerful, an <strong className="text-primary">online json formatter free</strong> of charge provides instant access without having to open heavy applications. If you are working on a remote machine or simply need a quick way to verify a snippet of data, a <strong className="text-primary">free online json formatter</strong> is often the fastest solution.
+                  Many developers wonder why they should use an{" "}
+                  <strong className="text-primary">
+                    online json formatter
+                  </strong>{" "}
+                  instead of just using their built-in IDE features. While IDEs
+                  like VS Code are powerful, an{" "}
+                  <strong className="text-primary">
+                    online json formatter free
+                  </strong>{" "}
+                  of charge provides instant access without having to open heavy
+                  applications. If you are working on a remote machine or simply
+                  need a quick way to verify a snippet of data, a{" "}
+                  <strong className="text-primary">
+                    free online json formatter
+                  </strong>{" "}
+                  is often the fastest solution.
                 </p>
                 <p>
-                  Moreover, our tool goes beyond simple beautification. If you find yourself searching for a <strong className="text-primary">json fromatter online</strong> (even with common typos!), you likely need a tool that can also handle &quot;broken&quot; JSON. Our smart syntax repair engine automatically fixes common errors like trailing commas, unquoted keys, and mismatched quotes, saving you minutes of manual debugging.
+                  Moreover, our tool goes beyond simple beautification. If you
+                  find yourself searching for a{" "}
+                  <strong className="text-primary">
+                    json fromatter online
+                  </strong>{" "}
+                  (even with common typos!), you likely need a tool that can
+                  also handle &quot;broken&quot; JSON. Our smart syntax repair
+                  engine automatically fixes common errors like trailing commas,
+                  unquoted keys, and mismatched quotes, saving you minutes of
+                  manual debugging.
                 </p>
 
-                <h3 className="text-2xl font-bold text-foreground">Explore Data with an Online JSON Viewer</h3>
+                <h3 className="text-2xl font-bold text-foreground">
+                  Explore Data with an Online JSON Viewer
+                </h3>
                 <p>
-                  Sometimes, just looking at a flat text file isn&apos;t enough, especially when dealing with deeply nested objects spanning thousands of lines. This is where an <strong className="text-primary">online json viewer</strong> becomes invaluable. A professional <strong className="text-primary">online json viewer</strong> provides a &quot;tree view&quot; representation of your data.
+                  Sometimes, just looking at a flat text file isn&apos;t enough,
+                  especially when dealing with deeply nested objects spanning
+                  thousands of lines. This is where an{" "}
+                  <strong className="text-primary">online json viewer</strong>{" "}
+                  becomes invaluable. A professional{" "}
+                  <strong className="text-primary">online json viewer</strong>{" "}
+                  provides a &quot;tree view&quot; representation of your data.
                 </p>
                 <p>
-                  Using an <strong className="text-primary">online json tree view</strong>, you can collapse and expand specific nodes, allowing you to focus on the data that matters most. This hierarchical navigation is far superior to scrolling through a raw text file. Our <strong className="text-primary">free online json viewer</strong> includes a recursive search feature, meaning you can find specific keys or values across any depth of your data structure instantly.
+                  Using an{" "}
+                  <strong className="text-primary">
+                    online json tree view
+                  </strong>
+                  , you can collapse and expand specific nodes, allowing you to
+                  focus on the data that matters most. This hierarchical
+                  navigation is far superior to scrolling through a raw text
+                  file. Our{" "}
+                  <strong className="text-primary">
+                    free online json viewer
+                  </strong>{" "}
+                  includes a recursive search feature, meaning you can find
+                  specific keys or values across any depth of your data
+                  structure instantly.
                 </p>
 
-                <h3 className="text-2xl font-bold text-foreground">The Importance of Security and Privacy</h3>
+                <h3 className="text-2xl font-bold text-foreground">
+                  The Importance of Security and Privacy
+                </h3>
                 <p>
-                  When using any <strong className="text-primary">online json formatter free</strong> tool, security should be your top priority. Many online tools send your data to their servers for processing, which can be a massive risk if you are handling sensitive API keys, user data, or proprietary configurations.
+                  When using any{" "}
+                  <strong className="text-primary">
+                    online json formatter free
+                  </strong>{" "}
+                  tool, security should be your top priority. Many online tools
+                  send your data to their servers for processing, which can be a
+                  massive risk if you are handling sensitive API keys, user
+                  data, or proprietary configurations.
                 </p>
                 <p>
-                  JSONlix is designed as a privacy-first utility. Unlike other tools, our <strong className="text-primary">online json viewer</strong> processes everything locally within your browser. This means your data never leaves your machine. Whether you are using it as a <strong className="text-primary">free online json formatter</strong> or a complex debugger, you can rest assured that your data remains 100% private and secure.
+                  JSONlix is designed as a privacy-first utility. Unlike other
+                  tools, our{" "}
+                  <strong className="text-primary">online json viewer</strong>{" "}
+                  processes everything locally within your browser. This means
+                  your data never leaves your machine. Whether you are using it
+                  as a{" "}
+                  <strong className="text-primary">
+                    free online json formatter
+                  </strong>{" "}
+                  or a complex debugger, you can rest assured that your data
+                  remains 100% private and secure.
                 </p>
 
-                <h3 className="text-2xl font-bold text-foreground">Advanced Features for Developers</h3>
+                <h3 className="text-2xl font-bold text-foreground">
+                  Advanced Features for Developers
+                </h3>
                 <p>
-                  For those who require more than just basic beautification, JSONlix offers a suite of advanced primitives. Our recursive engine is optimized for high-performance, capable of handling multi-megabyte files without lagging your browser. When you use this <strong className="text-primary">online json viewer</strong>, you are leveraging the same Monaco Editor engine that powers VS Code, giving you access to familiar features like bracket matching, code folding, and native syntax highlighting.
+                  For those who require more than just basic beautification,
+                  JSONlix offers a suite of advanced primitives. Our recursive
+                  engine is optimized for high-performance, capable of handling
+                  multi-megabyte files without lagging your browser. When you
+                  use this{" "}
+                  <strong className="text-primary">online json viewer</strong>,
+                  you are leveraging the same Monaco Editor engine that powers
+                  VS Code, giving you access to familiar features like bracket
+                  matching, code folding, and native syntax highlighting.
                 </p>
                 <p>
-                  The <strong className="text-primary">online json tree view</strong> is particularly useful for engineers who need to map out data flows or understand complex API responses. By providing a clear visual representation of objects and arrays, it reduces cognitive load and allows you to spot structural anomalies at a glance. Whether you need a <strong className="text-primary">free online json viewer</strong> for a one-off task or a daily driver for your development workflow, JSONlix delivers unmatched precision and speed.
+                  The{" "}
+                  <strong className="text-primary">
+                    online json tree view
+                  </strong>{" "}
+                  is particularly useful for engineers who need to map out data
+                  flows or understand complex API responses. By providing a
+                  clear visual representation of objects and arrays, it reduces
+                  cognitive load and allows you to spot structural anomalies at
+                  a glance. Whether you need a{" "}
+                  <strong className="text-primary">
+                    free online json viewer
+                  </strong>{" "}
+                  for a one-off task or a daily driver for your development
+                  workflow, JSONlix delivers unmatched precision and speed.
                 </p>
 
-                <h3 className="text-2xl font-bold text-foreground">How to Use Our Free Online JSON Formatter</h3>
+                <h3 className="text-2xl font-bold text-foreground">
+                  How to Use Our Free Online JSON Formatter
+                </h3>
                 <p>
-                  Using JSONlix is incredibly straightforward. Simply follow these steps:
+                  Using JSONlix is incredibly straightforward. Simply follow
+                  these steps:
                 </p>
                 <ul className="list-disc space-y-2 pl-6">
                   <li>Paste your raw JSON data into the editor window.</li>
                   <li>Watch as the tool instantly applies beautification.</li>
-                  <li>If there are errors, our &quot;Smart Repair&quot; will highlight or fix them.</li>
-                  <li>Switch to the <strong className="text-primary">online json tree view</strong> for a hierarchical look.</li>
+                  <li>
+                    If there are errors, our &quot;Smart Repair&quot; will
+                    highlight or fix them.
+                  </li>
+                  <li>
+                    Switch to the{" "}
+                    <strong className="text-primary">
+                      online json tree view
+                    </strong>{" "}
+                    for a hierarchical look.
+                  </li>
                   <li>Search for specific values using the deep search bar.</li>
-                  <li>Export your formatted data or copy it to your clipboard.</li>
+                  <li>
+                    Export your formatted data or copy it to your clipboard.
+                  </li>
                 </ul>
                 <p>
-                  Our goal is to provide the best <strong className="text-primary">online json formatter free</strong> service on the web, combining power with simplicity. Whether you are debugging a complex API response or just trying to make sense of a config file, JSONlix is the ultimate <strong className="text-primary">json formatter</strong> for the modern developer.
+                  Our goal is to provide the best{" "}
+                  <strong className="text-primary">
+                    online json formatter free
+                  </strong>{" "}
+                  service on the web, combining power with simplicity. Whether
+                  you are debugging a complex API response or just trying to
+                  make sense of a config file, JSONlix is the ultimate{" "}
+                  <strong className="text-primary">json formatter</strong> for
+                  the modern developer.
                 </p>
 
-                <h3 className="text-2xl font-bold text-foreground">Conclusion</h3>
+                <h3 className="text-2xl font-bold text-foreground">
+                  Conclusion
+                </h3>
                 <p>
-                  Whether you are a seasoned engineer or just starting your coding journey, having a reliable <strong className="text-primary">json formatter</strong> is non-negotiable. From beautifying messy strings with an <strong className="text-primary">online json formatter</strong> to exploring deep structures with an <strong className="text-primary">online json tree view</strong>, the right tools can significantly boost your productivity. Don&apos;t settle for basic tools; choose a <strong className="text-primary">free online json viewer</strong> that offers speed, repair capabilities, and absolute privacy.
+                  Whether you are a seasoned engineer or just starting your
+                  coding journey, having a reliable{" "}
+                  <strong className="text-primary">json formatter</strong> is
+                  non-negotiable. From beautifying messy strings with an{" "}
+                  <strong className="text-primary">
+                    online json formatter
+                  </strong>{" "}
+                  to exploring deep structures with an{" "}
+                  <strong className="text-primary">
+                    online json tree view
+                  </strong>
+                  , the right tools can significantly boost your productivity.
+                  Don&apos;t settle for basic tools; choose a{" "}
+                  <strong className="text-primary">
+                    free online json viewer
+                  </strong>{" "}
+                  that offers speed, repair capabilities, and absolute privacy.
                 </p>
                 <p>
-                  Experience the best <strong className="text-primary">json fromatter online</strong> today and streamline your data workflow with JSONlix.
+                  Experience the best{" "}
+                  <strong className="text-primary">
+                    json fromatter online
+                  </strong>{" "}
+                  today and streamline your data workflow with JSONlix.
                 </p>
               </div>
-            </div>
+            </motion.div>
           </div>
         </section>
       </main>
@@ -573,6 +748,82 @@ export default function HomePage() {
   )
 }
 
+function BentoCard({
+  icon,
+  title,
+  description,
+  className,
+  index,
+}: {
+  icon: React.ReactNode
+  title: string
+  description: string
+  className?: string
+  index: number
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ delay: index * 0.1 }}
+      whileHover={{ y: -5 }}
+      className={cn(
+        "group relative overflow-hidden rounded-3xl border border-border bg-muted/5 p-8 transition-all hover:border-primary/50 hover:bg-muted/10",
+        className
+      )}
+    >
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+      <div className="relative z-10 mb-6 inline-flex rounded-2xl bg-primary/10 p-3 text-primary transition-colors group-hover:bg-primary group-hover:text-black">
+        {icon}
+      </div>
+      <h3 className="relative z-10 mb-3 text-2xl font-black tracking-tight">
+        {title}
+      </h3>
+      <p className="relative z-10 text-base font-medium text-muted-foreground transition-colors group-hover:text-foreground">
+        {description}
+      </p>
+    </motion.div>
+  )
+}
+
+function StepItem({
+  number,
+  title,
+  description,
+  icon,
+  delay,
+}: {
+  number: string
+  title: string
+  description: string
+  icon: React.ReactNode
+  delay: number
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ delay }}
+      className="group relative z-10 flex flex-col items-center text-center"
+    >
+      <div className="relative mb-8">
+        <div className="flex h-20 w-20 items-center justify-center rounded-2xl border border-border bg-background text-primary shadow-xl transition-all duration-500 group-hover:scale-110 group-hover:border-primary group-hover:shadow-primary/20">
+          {icon}
+        </div>
+        <div className="absolute -top-4 -right-4 flex h-10 w-10 items-center justify-center rounded-full bg-primary text-xs font-black text-black shadow-lg">
+          {number}
+        </div>
+      </div>
+      <h3 className="mb-4 text-2xl font-black tracking-tight">{title}</h3>
+      <p className="max-w-[280px] leading-relaxed font-medium text-muted-foreground">
+        {description}
+      </p>
+    </motion.div>
+  )
+}
+
 function FeatureCard({
   icon,
   title,
@@ -607,13 +858,7 @@ function FeatureCard({
   )
 }
 
-function FAQItem({
-  question,
-  answer,
-}: {
-  question: string
-  answer: string
-}) {
+function FAQItem({ question, answer }: { question: string; answer: string }) {
   const [isOpen, setIsOpen] = React.useState(false)
 
   return (
@@ -631,7 +876,9 @@ function FAQItem({
         <motion.div
           animate={{
             rotate: isOpen ? 45 : 0,
-            backgroundColor: isOpen ? "rgba(59, 130, 246, 1)" : "rgba(0, 0, 0, 0)",
+            backgroundColor: isOpen
+              ? "rgba(59, 130, 246, 1)"
+              : "rgba(0, 0, 0, 0)",
           }}
           className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border transition-all duration-300"
         >
