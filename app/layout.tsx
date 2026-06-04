@@ -80,7 +80,7 @@ export default function RootLayout({
       suppressHydrationWarning
       className={cn("antialiased", fontMono.variable, "font-sans", inter.variable)}
     >
-      <head>
+      <body>
         <Script async src="https://www.googletagmanager.com/gtag/js?id=G-VPYL6YC2VB" />
         <Script id="google-analytics">
           {`
@@ -91,8 +91,6 @@ export default function RootLayout({
             gtag('config', 'G-VPYL6YC2VB');
           `}
         </Script>
-      </head>
-      <body>
         <ThemeProvider>
           <TooltipProvider>
             {children}
