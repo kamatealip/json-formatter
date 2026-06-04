@@ -5,7 +5,7 @@ import { ThemeToggle } from "@/components/theme-toggle"
 import { FileJson, ArrowLeft } from "lucide-react"
 
 export const metadata: Metadata = {
-  title: "JSONdeck | The Ultimate Online JSON Formatter & Viewer",
+  title: "JSONlix | The Ultimate Online JSON Formatter & Viewer",
   description:
     "Experience the ultimate online JSON formatter, validator, and viewer. Fast, secure, and privacy-focused local processing for professional developers.",
   keywords: [
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
     "json viewer",
     "json validator",
     "json beautifier",
-    "JSONdeck",
+    "JSONlix",
     "ultimate json experience",
   ],
 }
@@ -31,7 +31,7 @@ export default function Page() {
             <FileJson className="h-6 w-6 text-primary" />
           </div>
           <div>
-            <h1 className="text-xl font-bold tracking-tight leading-none mb-1">JSONdeck</h1>
+            <h1 className="text-xl font-bold tracking-tight leading-none mb-1">JSONlix</h1>
             <p className="text-xs font-medium tracking-wider text-muted-foreground hidden sm:block">
               The Ultimate Online <span className="font-bold text-primary">JSON</span> Formatter
             </p>
@@ -51,7 +51,7 @@ export default function Page() {
           </div>
 
           <div className="flex shrink-0 items-center justify-between px-1 text-[10px] text-muted-foreground/60">
-            <p>© 2026 JSONdeck • Private & Secure Local Processing</p>
+            <p>© 2026 JSONlix • Private & Secure Local Processing</p>
             <div className="flex gap-4">
               <Link href="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
               <Link href="/terms" className="hover:text-foreground transition-colors">Terms</Link>

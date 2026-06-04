@@ -19,7 +19,7 @@ export default function ContactPage() {
               <FileJson className="h-6 w-6 text-primary" />
             </div>
             <span className="text-xl font-black tracking-tighter">
-              JSONdeck
+              JSONlix
             </span>
           </div>
         </div>
@@ -36,7 +36,7 @@ export default function ContactPage() {
             <section className="space-y-6">
               <p className="text-xl leading-relaxed text-muted-foreground">
                 Have a question, feedback, or a feature request? We&apos;d love
-                to hear from you. JSONdeck is built for the community, and your
+                to hear from you. JSONlix is built for the community, and your
                 input helps us make it better.
               </p>
 
@@ -45,15 +45,15 @@ export default function ContactPage() {
                   icon={<Mail className="h-6 w-6 text-primary" />}
                   title="Email"
                   description="General inquiries and support"
-                  link="mailto:hello@jsondek.com"
-                  linkText="hello@jsondek.com"
+                  link="mailto:hello@jsonlix.com"
+                  linkText="hello@jsonlix.com"
                 />
 
                 <ContactCard
                   icon={<MessageSquare className="h-6 w-6 text-primary" />}
                   title="Discord"
                   description="Join our developer community"
-                  link="https://discord.gg/jsondek"
+                  link="https://discord.gg/jsonlix"
                   linkText="Join Discord"
                 />
               </div>
@@ -77,7 +77,7 @@ export default function ContactPage() {
       {/* Simple Footer */}
       <footer className="border-t border-border px-6 py-12">
         <div className="mx-auto flex max-w-3xl flex-col items-center justify-between gap-6 text-[10px] font-black tracking-[0.2em] text-muted-foreground/30 uppercase md:flex-row">
-          <p>© 2026 JSONdeck Research. ALL RIGHTS RESERVED.</p>
+          <p>© 2026 JSONlix Research. ALL RIGHTS RESERVED.</p>
           <div className="flex gap-8">
             <Link
               href="/about"

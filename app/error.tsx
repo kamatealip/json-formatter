@@ -27,7 +27,7 @@ export default function Error({
           <div className="rounded-xl border border-primary/20 bg-primary/20 p-2">
             <FileJson className="h-6 w-6 text-primary" />
           </div>
-          <span className="text-xl font-black tracking-tighter">JSONdeck</span>
+          <span className="text-xl font-black tracking-tighter">JSONlix</span>
         </Link>
 
         <div className="flex items-center gap-6">
@@ -110,7 +110,7 @@ export default function Error({
 
       <footer className="border-t border-border bg-background/50 px-6 py-8 backdrop-blur-xl">
         <p className="text-center text-[10px] font-black tracking-[0.2em] text-muted-foreground/30 uppercase">
-          &copy; 2026 JSONdeck Research. ALL RIGHTS RESERVED.
+          &copy; 2026 JSONlix Research. ALL RIGHTS RESERVED.
         </p>
       </footer>
     </div>

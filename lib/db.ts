@@ -7,18 +7,18 @@ export interface SavedState {
   updatedAt: number;
 }
 
-export class JsonDeckDatabase extends Dexie {
+export class JsonLixDatabase extends Dexie {
   states!: Table<SavedState>;
 
   constructor() {
-    super('JsonDeckDB');
+    super('JsonLixDB');
     this.version(1).stores({
       states: 'id, updatedAt' // Primary key is 'id', indexed by 'updatedAt'
     });
   }
 }
 
-export const db = new JsonDeckDatabase();
+export const db = new JsonLixDatabase();
 
 // Helper to save state
 export async function saveEditorState(input: string, indentSize: string) {

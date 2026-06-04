@@ -90,7 +90,7 @@ export default function HomePage() {
           <div className="rounded-xl border border-primary/20 bg-primary/20 p-2">
             <FileJson className="h-6 w-6 text-primary" />
           </div>
-          <span className="text-xl font-black tracking-tighter">JSONdeck</span>
+          <span className="text-xl font-black tracking-tighter">JSONlix</span>
         </motion.div>
 
         <div className="flex items-center gap-6">
@@ -113,241 +113,151 @@ export default function HomePage() {
       </nav>
 
       <main className="flex-1">
-        {/* Hero Section */}
+        {/* Professional Split-Layout Hero */}
         <section className="relative flex min-h-[90vh] items-center justify-center overflow-hidden py-24">
           <Spotlight
             className="-top-40 left-0 md:-top-20 md:left-60"
             fill="currentColor"
           />
 
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] bg-[size:40px_40px]" />
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_40%,#000_70%,transparent_100%)] bg-[size:40px_40px]" />
 
           <div className="relative z-10 container mx-auto px-6">
-            <div className="mx-auto max-w-4xl text-center">
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5 }}
-                className="mb-8 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5 text-[10px] font-black tracking-[0.2em] text-primary uppercase"
-              >
-                <Zap className="h-3 w-3 fill-current" />
-                <span>Modern JSON Engineering</span>
-              </motion.div>
-
-              <TextGenerateEffect
-                words="Engineering the perfect JSON workflow."
-                className="mb-8 bg-gradient-to-b from-foreground to-foreground/40 bg-clip-text text-4xl leading-[1.2] font-black tracking-tighter text-transparent md:text-6xl lg:text-7xl"
-              />
-
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.8, duration: 0.8 }}
-                className="mx-auto mb-12 max-w-2xl text-lg leading-relaxed font-medium text-muted-foreground md:text-2xl"
-              >
-                A high-performance &quot;deck&quot; that handles messy, broken JSON with
-                real-time detection and smart auto-repair.
-                <span className="text-foreground/80">
-                  {" "}
-                  Zero server-side overhead. Absolute privacy.
-                </span>
-              </motion.p>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1, duration: 0.8 }}
-                className="flex flex-col items-center justify-center gap-6 sm:flex-row"
-              >
-                <Link href="/format">
-                  <HoverBorderGradient
-                    containerClassName="rounded-full shadow-[0_0_30px_-5px_var(--primary)]"
-                    as="button"
-                    className="flex items-center gap-2 bg-background px-10 py-4 text-lg font-black text-foreground"
-                  >
-                    Launch Application
-                    <ArrowRight className="h-5 w-5" />
-                  </HoverBorderGradient>
-                </Link>
-
-                <Button
-                  asChild
-                  variant="link"
-                  className="group text-lg font-bold text-muted-foreground hover:text-foreground"
+            <div className="grid grid-cols-1 items-center gap-16 lg:grid-cols-2">
+              <div className="max-w-2xl text-left">
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.5 }}
+                  className="mb-8 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5 text-[10px] font-black tracking-[0.2em] text-primary uppercase"
                 >
-                  <Link
-                    href="#capabilities"
-                    className="flex items-center gap-2"
-                  >
-                    Explore Features
-                    <div className="h-px w-0 bg-muted-foreground transition-all duration-300 group-hover:w-8" />
-                  </Link>
-                </Button>
-              </motion.div>
+                  <Zap className="h-3 w-3 fill-current" />
+                  <span>Modern JSON Engineering</span>
+                </motion.div>
 
-              {/* Animated Privacy Visualization */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1.5, duration: 1 }}
-                className="mt-16 flex flex-col items-center gap-6"
-              >
-                <div className="relative flex items-center justify-center">
-                  {/* Outer Pulsing Rings */}
-                  <motion.div 
-                    animate={{ scale: [1, 1.2, 1], opacity: [0.1, 0.2, 0.1] }}
-                    transition={{ duration: 4, repeat: Infinity }}
-                    className="absolute h-32 w-32 rounded-full border border-primary/30" 
-                  />
-                  <motion.div 
-                    animate={{ scale: [1, 1.4, 1], opacity: [0.05, 0.1, 0.05] }}
-                    transition={{ duration: 4, delay: 1, repeat: Infinity }}
-                    className="absolute h-32 w-32 rounded-full border border-primary/20" 
-                  />
-                  
-                  {/* Rotating Orbitals */}
-                  <motion.div 
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                    className="absolute h-48 w-48"
-                  >
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 h-2 w-2 rounded-full bg-primary shadow-[0_0_10px_var(--primary)]" />
-                  </motion.div>
-                  <motion.div 
-                    animate={{ rotate: -360 }}
-                    transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-                    className="absolute h-36 w-36"
-                  >
-                    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 h-1.5 w-1.5 rounded-full bg-primary/40" />
-                  </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1, duration: 0.8 }}
+                >
+                  <h1 className="mb-8 bg-gradient-to-b from-foreground to-foreground/40 bg-clip-text text-5xl leading-[1.1] font-black tracking-tighter text-transparent md:text-7xl lg:text-8xl">
+                    The Ultimate JSON <br />
+                    <span className="text-primary">Workflow.</span>
+                  </h1>
+                </motion.div>
 
-                  {/* Central Shield Icon */}
-                  <div className="relative z-10 flex h-16 w-16 items-center justify-center rounded-2xl border border-primary/20 bg-background/80 shadow-[0_0_20px_-5px_var(--primary)] backdrop-blur-sm">
-                    <ShieldCheck className="h-8 w-8 text-primary" />
-                  </div>
-                </div>
-                
-                <div className="flex flex-col items-center gap-1">
-                  <span className="text-[10px] font-black tracking-[0.4em] text-primary uppercase">
-                    Privacy-First Protocol
-                  </span>
-                  <span className="text-xs font-medium text-muted-foreground/60">
-                    100% Client-Side Processing • Encrypted Local Storage
-                  </span>
-                </div>
-              </motion.div>
-            </div>
+                <motion.p
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2, duration: 0.8 }}
+                  className="mb-12 text-lg leading-relaxed font-medium text-muted-foreground md:text-2xl"
+                >
+                  A high-performance formatter that handles messy, broken JSON with real-time detection and smart auto-repair. 
+                  <span className="text-foreground/80"> Zero server-side overhead. Absolute privacy.</span>
+                </motion.p>
 
-            {/* Floating Data Shards */}
-            <DataShard className="top-1/4 -left-12 rotate-12 delay-75" />
-            <DataShard className="top-1/3 -right-8 -rotate-12 delay-200" />
-            <DataShard className="bottom-1/4 left-1/4 rotate-45 delay-500 opacity-20" />
-
-            {/* Code Window Animation Mockup */}
-            <motion.div
-              initial={{ opacity: 0, y: 40, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ delay: 1.2, duration: 1, ease: "easeOut" }}
-              className="group relative mx-auto mt-24 max-w-5xl"
-            >
-              <div className="absolute inset-0 rounded-full bg-primary/10 opacity-40 blur-[140px] transition-opacity duration-1000 group-hover:opacity-60" />
-              <div className="relative overflow-hidden rounded-3xl border border-border bg-background/60 shadow-[0_0_80px_-20px_rgba(0,0,0,0.1)] dark:shadow-[0_0_80px_-20px_rgba(255,255,255,0.05)] backdrop-blur-3xl">
-                <div className="flex items-center justify-between border-b border-border bg-muted/40 px-6 py-4">
-                  <div className="flex gap-2">
-                    <div className="h-3.5 w-3.5 rounded-full border border-red-500/50 bg-red-500/30" />
-                    <div className="h-3.5 w-3.5 rounded-full border border-amber-500/50 bg-amber-500/30" />
-                    <div className="h-3.5 w-3.5 rounded-full border border-emerald-500/50 bg-emerald-500/30" />
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="h-2 w-2 animate-pulse rounded-full bg-emerald-500" />
-                    <div className="text-[10px] font-black tracking-[0.3em] text-muted-foreground/40 uppercase">
-                      JSONDEK_KERNEL_CORE.v2
-                    </div>
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 divide-y divide-border p-0 font-mono text-sm md:grid-cols-2 md:divide-x md:divide-y-0">
-                  <div className="bg-muted/5 p-10 relative overflow-hidden">
-                    <div className="absolute top-0 right-0 p-4">
-                      <Terminal className="h-4 w-4 text-red-500/40" />
-                    </div>
-                    <div className="mb-6 flex items-center gap-3 text-red-500/80">
-                      <span className="text-[10px] font-black tracking-widest uppercase">
-                        Dirty Input
-                      </span>
-                    </div>
-                    <div className="space-y-1.5 font-mono">
-                      <div className="text-red-500/50">{"{"}</div>
-                      <div className="pl-6 text-red-500/50 flex items-center gap-2">
-                        raw_data: 0xFA22,
-                        <motion.div 
-                          animate={{ opacity: [0, 1, 0] }} 
-                          transition={{ repeat: Infinity, duration: 0.8 }}
-                          className="h-4 w-2 bg-red-500/50" 
-                        />
-                      </div>
-                      <div className="pl-6 text-red-500/50">
-                        {"'status': \"unstable\","}
-                      </div>
-                      <div className="pl-6 text-red-500/50">active: true,</div>
-                      <div className="text-red-500/50">{"}"}</div>
-                    </div>
-                  </div>
-                  <div className="group/pane relative overflow-hidden bg-primary/[0.02] p-10">
-                    <motion.div 
-                      animate={{ 
-                        opacity: [0.03, 0.08, 0.03],
-                        backgroundPosition: ["0% 0%", "100% 100%"] 
-                      }}
-                      transition={{ duration: 5, repeat: Infinity }}
-                      className="absolute inset-0 bg-[radial-gradient(circle_at_center,var(--primary)_0%,transparent_100%)] bg-[size:200%_200%]" 
-                    />
-                    <div className="relative z-10 mb-6 flex items-center gap-3 text-emerald-500">
-                      <CheckCircle2 className="h-4 w-4" />
-                      <span className="text-[10px] font-black tracking-widest uppercase">
-                        Healed Primitives
-                      </span>
-                    </div>
-                    <div className="relative z-10 space-y-1.5 font-mono">
-                      <div className="text-foreground/80">{"{"}</div>
-                      <div className="pl-6">
-                        <span className="text-blue-500 dark:text-blue-400">
-                          &quot;raw_data&quot;
-                        </span>
-                        : <span className="text-amber-600 dark:text-amber-400">64034</span>,
-                      </div>
-                      <div className="pl-6">
-                        <span className="text-blue-500 dark:text-blue-400">
-                          &quot;status&quot;
-                        </span>
-                        :{" "}
-                        <span className="text-emerald-600 dark:text-emerald-500">
-                          &quot;unstable&quot;
-                        </span>
-                        ,
-                      </div>
-                      <div className="pl-6">
-                        <span className="text-blue-500 dark:text-blue-400">
-                          &quot;active&quot;
-                        </span>
-                        : <span className="text-amber-600 dark:text-amber-400">true</span>
-                      </div>
-                      <div className="text-foreground/80">{"}"}</div>
-                    </div>
-                    <motion.div
-                      animate={{ opacity: [0.1, 0.3, 0.1] }}
-                      transition={{ duration: 4, repeat: Infinity }}
-                      className="mt-12 space-y-1 border-t border-border pt-6 text-[10px] text-muted-foreground/30 font-black"
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3, duration: 0.8 }}
+                  className="flex flex-col items-center gap-6 sm:flex-row"
+                >
+                  <Link href="/format">
+                    <HoverBorderGradient
+                      containerClassName="rounded-full shadow-[0_0_30px_-5px_rgba(59,130,246,0.5)]"
+                      as="button"
+                      className="flex items-center gap-2 bg-background px-10 py-4 text-lg font-black text-foreground"
                     >
-                      <div>[SYSTEM] APPLIED RFC-8259 NORMALIZATION</div>
-                      <div className="flex items-center gap-2">
-                        <div className="h-1 w-1 rounded-full bg-emerald-500" />
-                        [SUCCESS] REPAIR DURATION: 0.04MS
-                      </div>
-                    </motion.div>
-                  </div>
-                </div>
+                      Launch Application
+                      <ArrowRight className="h-5 w-5" />
+                    </HoverBorderGradient>
+                  </Link>
+
+                  <Button
+                    asChild
+                    variant="link"
+                    className="group text-lg font-bold text-muted-foreground hover:text-foreground"
+                  >
+                    <Link
+                      href="#capabilities"
+                      className="flex items-center gap-2"
+                    >
+                      Explore Features
+                      <div className="h-px w-0 bg-muted-foreground transition-all duration-300 group-hover:w-8" />
+                    </Link>
+                  </Button>
+                </motion.div>
               </div>
-            </motion.div>
+
+              {/* Professional Visual Element */}
+              <div className="relative hidden lg:block">
+                <motion.div
+                  initial={{ opacity: 0, x: 40, rotateY: -10 }}
+                  animate={{ opacity: 1, x: 0, rotateY: 0 }}
+                  transition={{ duration: 1, ease: "easeOut" }}
+                  className="perspective-1000"
+                >
+                  <div className="relative overflow-hidden rounded-3xl border border-border bg-background/60 shadow-2xl backdrop-blur-3xl p-1">
+                    <div className="flex flex-col rounded-[1.25rem] bg-muted/20 overflow-hidden">
+                      <div className="flex items-center justify-between border-b border-border bg-muted/40 px-6 py-4">
+                        <div className="flex gap-2">
+                          <div className="h-3 w-3 rounded-full bg-red-500/30 border border-red-500/50" />
+                          <div className="h-3 w-3 rounded-full bg-amber-500/30 border border-amber-500/50" />
+                          <div className="h-3 w-3 rounded-full bg-emerald-500/30 border border-emerald-500/50" />
+                        </div>
+                        <div className="text-[10px] font-black tracking-[0.3em] text-muted-foreground/40 uppercase">
+                          JSONLIX_CORE_ENGINE
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 divide-y divide-border font-mono text-sm">
+                        <div className="p-8 bg-muted/5">
+                          <div className="flex items-center gap-3 text-red-500/80 mb-4">
+                            <Terminal className="h-4 w-4" />
+                            <span className="text-[10px] font-black tracking-widest uppercase">Input Data</span>
+                          </div>
+                          <div className="space-y-1 opacity-50">
+                            <div>{"{"}</div>
+                            <div className="pl-6">name: &apos;jsonlix&apos;,</div>
+                            <div className="pl-6">active: true,</div>
+                            <div className="pl-6 text-red-400 font-bold underline decoration-wavy underline-offset-4">missing_comma</div>
+                            <div>{"}"}</div>
+                          </div>
+                        </div>
+                        <div className="p-8 bg-primary/[0.03]">
+                          <div className="flex items-center gap-3 text-emerald-500 mb-4">
+                            <CheckCircle2 className="h-4 w-4" />
+                            <span className="text-[10px] font-black tracking-widest uppercase">Auto-Repaired</span>
+                          </div>
+                          <div className="space-y-1">
+                            <div className="text-foreground/80">{"{"}</div>
+                            <div className="pl-6 text-blue-400">&quot;name&quot;: <span className="text-emerald-400">&quot;jsonlix&quot;</span>,</div>
+                            <div className="pl-6 text-blue-400">&quot;active&quot;: <span className="text-emerald-400">true</span>,</div>
+                            <div className="pl-6 text-blue-400">&quot;status&quot;: <span className="text-emerald-400">&quot;ready&quot;</span></div>
+                            <div className="text-foreground/80">{"}"}</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Decorative Shards */}
+                  <motion.div 
+                    animate={{ y: [0, -15, 0] }}
+                    transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                    className="absolute -right-8 -top-8 rounded-2xl border border-primary/20 bg-primary/10 p-4 shadow-xl backdrop-blur-md"
+                  >
+                    <Sparkles className="h-6 w-6 text-primary" />
+                  </motion.div>
+                  <motion.div 
+                    animate={{ y: [0, 15, 0] }}
+                    transition={{ duration: 4, delay: 1, repeat: Infinity, ease: "easeInOut" }}
+                    className="absolute -left-12 -bottom-12 rounded-2xl border border-primary/20 bg-primary/10 p-6 shadow-xl backdrop-blur-md"
+                  >
+                    <ShieldCheck className="h-8 w-8 text-primary" />
+                  </motion.div>
+                </motion.div>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -436,27 +346,27 @@ export default function HomePage() {
               <div className="space-y-4">
                 <FAQItem
                   question="Is there a reliable JSON formatter online?"
-                  answer="Yes, JSONdeck is a professional-grade, privacy-first online JSON formatter designed for developers who need fast and secure data processing."
+                  answer="Yes, JSONlix is a professional-grade, privacy-first online JSON formatter designed for developers who need fast and secure data processing."
                 />
                 <FAQItem
                   question="How to identify and fix JSON syntax errors?"
-                  answer="JSONdeck automatically detects syntax errors in real-time. Use the 'Smart Repair' feature to automatically fix common issues like unquoted keys, trailing commas, and single quotes."
+                  answer="JSONlix automatically detects syntax errors in real-time. Use the 'Smart Repair' feature to automatically fix common issues like unquoted keys, trailing commas, and single quotes."
                 />
                 <FAQItem
-                  question="Can I use JSONdeck on my smartphone?"
-                  answer="Absolutely. JSONdeck is built with a responsive design that works seamlessly on mobile devices, allowing you to format and inspect JSON data anywhere."
+                  question="Can I use JSONlix on my smartphone?"
+                  answer="Absolutely. JSONlix is built with a responsive design that works seamlessly on mobile devices, allowing you to format and inspect JSON data anywhere."
                 />
                 <FAQItem
                   question="How to format and beautify JSON online?"
-                  answer="Simply paste your raw JSON into the editor. JSONdeck instantly applies syntax highlighting and indentation. You can adjust the indentation size between 2 spaces, 4 spaces, or tabs."
+                  answer="Simply paste your raw JSON into the editor. JSONlix instantly applies syntax highlighting and indentation. You can adjust the indentation size between 2 spaces, 4 spaces, or tabs."
                 />
                 <FAQItem
                   question="Is it safe to use an online JSON formatter?"
-                  answer="With JSONdeck, it is 100% safe. All processing is done locally in your browser. Your data never leaves your machine and is never sent to any server."
+                  answer="With JSONlix, it is 100% safe. All processing is done locally in your browser. Your data never leaves your machine and is never sent to any server."
                 />
                 <FAQItem
                   question="How to read and navigate large JSON files?"
-                  answer="JSONdeck features an advanced Tree View for hierarchical navigation and a recursive search tool to find specific keys or values in seconds, regardless of file size."
+                  answer="JSONlix features an advanced Tree View for hierarchical navigation and a recursive search tool to find specific keys or values in seconds, regardless of file size."
                 />
               </div>
             </div>
@@ -493,7 +403,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* SEO Content Section */}
+        {/* SEO Content Section - Fixed Hydration Mismatch */}
         <section className="relative border-t border-border bg-background py-32">
           <div className="container mx-auto px-6">
             <div className="mx-auto max-w-4xl prose prose-invert prose-p:text-muted-foreground prose-headings:text-foreground prose-strong:text-primary">
@@ -532,20 +442,20 @@ export default function HomePage() {
                   When using any <strong className="text-primary">online json formatter free</strong> tool, security should be your top priority. Many online tools send your data to their servers for processing, which can be a massive risk if you are handling sensitive API keys, user data, or proprietary configurations.
                 </p>
                 <p>
-                  JSONdeck is designed as a privacy-first utility. Unlike other tools, our <strong className="text-primary">online json viewer</strong> processes everything locally within your browser. This means your data never leaves your machine. Whether you are using it as a <strong className="text-primary">free online json formatter</strong> or a complex debugger, you can rest assured that your data remains 100% private and secure.
+                  JSONlix is designed as a privacy-first utility. Unlike other tools, our <strong className="text-primary">online json viewer</strong> processes everything locally within your browser. This means your data never leaves your machine. Whether you are using it as a <strong className="text-primary">free online json formatter</strong> or a complex debugger, you can rest assured that your data remains 100% private and secure.
                 </p>
 
                 <h3 className="text-2xl font-bold text-foreground">Advanced Features for Developers</h3>
                 <p>
-                  For those who require more than just basic beautification, JSONdeck offers a suite of advanced primitives. Our recursive engine is optimized for high-performance, capable of handling multi-megabyte files without lagging your browser. When you use this <strong className="text-primary">online json viewer</strong>, you are leveraging the same Monaco Editor engine that powers VS Code, giving you access to familiar features like bracket matching, code folding, and native syntax highlighting.
+                  For those who require more than just basic beautification, JSONlix offers a suite of advanced primitives. Our recursive engine is optimized for high-performance, capable of handling multi-megabyte files without lagging your browser. When you use this <strong className="text-primary">online json viewer</strong>, you are leveraging the same Monaco Editor engine that powers VS Code, giving you access to familiar features like bracket matching, code folding, and native syntax highlighting.
                 </p>
                 <p>
-                  The <strong className="text-primary">online json tree view</strong> is particularly useful for engineers who need to map out data flows or understand complex API responses. By providing a clear visual representation of objects and arrays, it reduces cognitive load and allows you to spot structural anomalies at a glance. Whether you need a <strong className="text-primary">free online json viewer</strong> for a one-off task or a daily driver for your development workflow, JSONdeck delivers unmatched precision and speed.
+                  The <strong className="text-primary">online json tree view</strong> is particularly useful for engineers who need to map out data flows or understand complex API responses. By providing a clear visual representation of objects and arrays, it reduces cognitive load and allows you to spot structural anomalies at a glance. Whether you need a <strong className="text-primary">free online json viewer</strong> for a one-off task or a daily driver for your development workflow, JSONlix delivers unmatched precision and speed.
                 </p>
 
                 <h3 className="text-2xl font-bold text-foreground">How to Use Our Free Online JSON Formatter</h3>
                 <p>
-                  Using JSONdeck is incredibly straightforward. Simply follow these steps:
+                  Using JSONlix is incredibly straightforward. Simply follow these steps:
                 </p>
                 <ul className="list-disc space-y-2 pl-6">
                   <li>Paste your raw JSON data into the editor window.</li>
@@ -556,7 +466,7 @@ export default function HomePage() {
                   <li>Export your formatted data or copy it to your clipboard.</li>
                 </ul>
                 <p>
-                  Our goal is to provide the best <strong className="text-primary">online json formatter free</strong> service on the web, combining power with simplicity. Whether you are debugging a complex API response or just trying to make sense of a config file, JSONdeck is the ultimate <strong className="text-primary">json formatter</strong> for the modern developer.
+                  Our goal is to provide the best <strong className="text-primary">online json formatter free</strong> service on the web, combining power with simplicity. Whether you are debugging a complex API response or just trying to make sense of a config file, JSONlix is the ultimate <strong className="text-primary">json formatter</strong> for the modern developer.
                 </p>
 
                 <h3 className="text-2xl font-bold text-foreground">Conclusion</h3>
@@ -564,7 +474,7 @@ export default function HomePage() {
                   Whether you are a seasoned engineer or just starting your coding journey, having a reliable <strong className="text-primary">json formatter</strong> is non-negotiable. From beautifying messy strings with an <strong className="text-primary">online json formatter</strong> to exploring deep structures with an <strong className="text-primary">online json tree view</strong>, the right tools can significantly boost your productivity. Don&apos;t settle for basic tools; choose a <strong className="text-primary">free online json viewer</strong> that offers speed, repair capabilities, and absolute privacy.
                 </p>
                 <p>
-                  Experience the best <strong className="text-primary">json fromatter online</strong> today and streamline your data workflow with JSONdeck.
+                  Experience the best <strong className="text-primary">json fromatter online</strong> today and streamline your data workflow with JSONlix.
                 </p>
               </div>
             </div>
@@ -580,7 +490,7 @@ export default function HomePage() {
               <div className="mb-6 flex items-center gap-2.5">
                 <FileJson className="h-8 w-8 text-primary" />
                 <span className="text-2xl font-black tracking-tighter">
-                  JSONdeck
+                  JSONlix
                 </span>
               </div>
               <p className="max-w-sm text-lg leading-relaxed font-medium text-muted-foreground">
@@ -648,7 +558,7 @@ export default function HomePage() {
 
           <div className="flex flex-col items-center justify-between gap-8 border-t border-border pt-12 md:flex-row">
             <p className="text-[10px] font-black tracking-[0.2em] text-muted-foreground/30 uppercase">
-              &copy; 2026 JSONdeck Research. ALL RIGHTS RESERVED.
+              &copy; 2026 JSONlix Research. ALL RIGHTS RESERVED.
             </p>
             <div className="group flex cursor-default items-center gap-3 text-muted-foreground/10">
               <ShieldCheck className="h-4 w-4 transition-colors group-hover:text-primary" />
@@ -660,32 +570,6 @@ export default function HomePage() {
         </div>
       </footer>
     </div>
-  )
-}
-
-function DataShard({ className }: { className?: string }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ 
-        opacity: [0.2, 0.4, 0.2],
-        y: [0, -20, 0],
-        rotate: [0, 5, 0]
-      }}
-      transition={{ 
-        duration: 8, 
-        repeat: Infinity, 
-        ease: "easeInOut" 
-      }}
-      className={cn(
-        "absolute hidden lg:flex items-center gap-2 rounded-lg border border-primary/20 bg-primary/5 px-3 py-1.5 backdrop-blur-md pointer-events-none",
-        className
-      )}
-    >
-      <div className="h-1.5 w-1.5 rounded-full bg-primary shadow-[0_0_8px_var(--primary)]" />
-      <div className="h-1 w-12 rounded-full bg-primary/20" />
-      <div className="h-1 w-8 rounded-full bg-primary/10" />
-    </motion.div>
   )
 }
 
@@ -747,7 +631,7 @@ function FAQItem({
         <motion.div
           animate={{
             rotate: isOpen ? 45 : 0,
-            backgroundColor: isOpen ? "var(--primary)" : "transparent",
+            backgroundColor: isOpen ? "rgba(59, 130, 246, 1)" : "rgba(0, 0, 0, 0)",
           }}
           className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border transition-all duration-300"
         >

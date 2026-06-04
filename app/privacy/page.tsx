@@ -15,7 +15,7 @@ export default function PrivacyPage() {
             <div className="rounded-xl border border-primary/20 bg-primary/20 p-2">
               <FileJson className="h-6 w-6 text-primary" />
             </div>
-            <span className="text-xl font-black tracking-tighter">JSONdeck</span>
+            <span className="text-xl font-black tracking-tighter">JSONlix</span>
           </div>
         </div>
         <ThemeToggle />
@@ -32,13 +32,13 @@ export default function PrivacyPage() {
 
           <div className="prose prose-invert max-w-none text-muted-foreground space-y-8 text-lg leading-relaxed">
             <p className="text-xl text-foreground font-medium">
-              Your privacy is not a feature; it is our foundation. JSONdeck is designed to ensure your data never leaves your machine.
+              Your privacy is not a feature; it is our foundation. JSONlix is designed to ensure your data never leaves your machine.
             </p>
 
             <section className="space-y-4">
               <h2 className="text-2xl font-bold text-foreground">1. Data Processing</h2>
               <p>
-                JSONdeck is a client-side application. When you paste, upload, or drag-and-drop JSON data into our tool, all formatting, validation, and repair operations are performed locally in your browser&apos;s memory using JavaScript and Web Workers. 
+                JSONlix is a client-side application. When you paste, upload, or drag-and-drop JSON data into our tool, all formatting, validation, and repair operations are performed locally in your browser&apos;s memory using JavaScript and Web Workers. 
               </p>
               <p className="font-bold text-primary">We do not transmit your JSON data to any server.</p>
             </section>
@@ -74,7 +74,7 @@ export default function PrivacyPage() {
             <section className="space-y-4 pt-12 border-t border-border">
               <h2 className="text-2xl font-bold text-foreground">Contact Us</h2>
               <p>
-                If you have any questions about this Privacy Policy, please contact us at <Link href="mailto:privacy@jsondek.com" className="text-primary hover:underline">privacy@jsondek.com</Link>.
+                If you have any questions about this Privacy Policy, please contact us at <Link href="mailto:privacy@jsonlix.com" className="text-primary hover:underline">privacy@jsonlix.com</Link>.
               </p>
             </section>
           </div>
@@ -84,7 +84,7 @@ export default function PrivacyPage() {
       {/* Simple Footer */}
       <footer className="border-t border-border py-12 px-6">
         <div className="mx-auto max-w-3xl flex flex-col md:flex-row items-center justify-between gap-6 text-[10px] font-black tracking-[0.2em] text-muted-foreground/30 uppercase">
-          <p>© 2026 JSONdeck Research. ALL RIGHTS RESERVED.</p>
+          <p>© 2026 JSONlix Research. ALL RIGHTS RESERVED.</p>
           <div className="flex gap-8">
             <Link href="/about" className="hover:text-primary transition-colors">About</Link>
             <Link href="/terms" className="hover:text-primary transition-colors">Terms</Link>

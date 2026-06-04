@@ -1,5 +1,6 @@
 import { Geist_Mono, Inter } from "next/font/google"
 import type { Metadata } from "next"
+import Script from "next/script"
 
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
@@ -17,25 +18,25 @@ const fontMono = Geist_Mono({
 export const metadata: Metadata = {
   title: {
     default: "JSON Formatter - Best Online JSON Viewer & Repair Tool",
-    template: "%s | JSONdeck"
+    template: "%s | JSONlix"
   },
   description: "Free online JSON formatter and viewer. Best tool to format, beautify, repair, and navigate complex JSON data structures with recursive tree view and smart syntax repair.",
   keywords: ["json formatter", "online json formatter", "json fromatter online", "online json viewer", "online json tree view", "free online json viewer", "free online json formatter", "online json formatter free"],
-  authors: [{ name: "JSONdeck" }],
-  creator: "JSONdeck",
+  authors: [{ name: "JSONlix" }],
+  creator: "JSONlix",
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://jsondek.com",
+    url: "https://jsonlix.com",
     title: "JSON Formatter - Online JSON Viewer & Repair Tool",
     description: "Format, repair, and explore JSON files locally. High-performance online JSON formatter with 100% privacy.",
-    siteName: "JSONdeck",
+    siteName: "JSONlix",
     images: [
       {
         url: "/dark.png",
         width: 1200,
         height: 630,
-        alt: "JSONdeck Formatter",
+        alt: "JSONlix Formatter",
       },
     ],
   },
@@ -44,7 +45,7 @@ export const metadata: Metadata = {
     title: "JSON Formatter - Online JSON Viewer & Repair Tool",
     description: "Format, repair, and explore JSON files locally. High-performance online JSON formatter with 100% privacy.",
     images: ["/dark.png"],
-    creator: "@jsondek",
+    creator: "@jsonlix",
   },
   robots: {
     index: true,
@@ -76,6 +77,18 @@ export default function RootLayout({
       suppressHydrationWarning
       className={cn("antialiased", fontMono.variable, "font-sans", inter.variable)}
     >
+      <head>
+        <Script async src="https://www.googletagmanager.com/gtag/js?id=G-VPYL6YC2VB" />
+        <Script id="google-analytics">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', 'G-VPYL6YC2VB');
+          `}
+        </Script>
+      </head>
       <body>
         <ThemeProvider>
           <TooltipProvider>

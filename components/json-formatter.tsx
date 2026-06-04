@@ -63,7 +63,7 @@ interface CopyConfig {
 }
 
 const DEFAULT_JSON = `{
-  "message": "Welcome to JSONdeck",
+  "message": "Welcome to JSONlix",
   "status": "online",
   "tagline": "The Ultimate Online JSON Experience",
   "capabilities": {
@@ -125,10 +125,10 @@ export function JsonFormatter() {
     minify: false
   })
 
-  const editorTheme = resolvedTheme === "dark" ? "jsondek-dark" : "jsondek-light"
+  const editorTheme = resolvedTheme === "dark" ? "jsonlix-dark" : "jsonlix-light"
 
   const handleEditorWillMount = (monaco: Monaco) => {
-    monaco.editor.defineTheme('jsondek-dark', {
+    monaco.editor.defineTheme('jsonlix-dark', {
       base: 'vs-dark',
       inherit: true,
       rules: [
@@ -150,7 +150,7 @@ export function JsonFormatter() {
       }
     });
 
-    monaco.editor.defineTheme('jsondek-light', {
+    monaco.editor.defineTheme('jsonlix-light', {
       base: 'vs',
       inherit: true,
       rules: [
@@ -650,7 +650,7 @@ export function JsonFormatter() {
             </div>
           )}
         </div>
-        <div className="font-medium tracking-wider">JSONdeck System</div>
+        <div className="font-medium tracking-wider">JSONlix System</div>
       </div>
     </div>
   )
