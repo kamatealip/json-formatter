@@ -5,7 +5,7 @@ import { FileJson, ShieldCheck } from "lucide-react"
 export async function Footer() {
   "use cache"
   return (
-    <footer className="relative z-10 border-t border-border bg-background py-20">
+    <footer className="relative z-10 border-t border-border bg-muted/20 py-20">
       <div className="container mx-auto px-6">
         <div className="mb-20 grid grid-cols-1 items-start gap-12 md:grid-cols-4">
           <div className="md:col-span-2">

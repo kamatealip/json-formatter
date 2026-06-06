@@ -250,7 +250,7 @@ export function JsonTreeView({ data }: { data: unknown }) {
     <TreeContext.Provider value={{ activePath, setActivePath, searchQuery }}>
       <div className="h-full w-full flex flex-col overflow-hidden">
         {/* Search Header */}
-        <div className="px-4 py-2 border-b bg-secondary flex items-center gap-2 shrink-0">
+        <div className="px-4 py-2 border-b bg-muted/20 flex items-center gap-2 shrink-0">
           <div className="relative flex-1">
             <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
             <input 
@@ -279,7 +279,7 @@ export function JsonTreeView({ data }: { data: unknown }) {
         </div>
 
         {/* Breadcrumbs bar */}
-        <div className="px-4 py-1.5 border-b bg-secondary/50 flex items-center gap-1 overflow-x-auto no-scrollbar shrink-0 min-h-8">
+        <div className="px-4 py-1.5 border-b bg-muted/5 flex items-center gap-1 overflow-x-auto no-scrollbar shrink-0 min-h-8">
           <button 
             onClick={() => setActivePath([])}
             className={cn(
