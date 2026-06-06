@@ -9,7 +9,7 @@ export function Nav() {
         <div className="rounded-xl border border-primary/20 bg-primary/20 p-2">
           <FileJson className="h-6 w-6 text-primary" />
         </div>
-        <span className="text-xl font-black tracking-tighter">JSONlix</span>
+        <span className="text-xl font-black tracking-tighter text-foreground">JSONlix</span>
       </div>
 
       <div className="flex items-center gap-6">

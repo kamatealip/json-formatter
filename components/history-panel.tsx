@@ -1,10 +1,18 @@
 "use client"
 
 import * as React from "react"
-import { History, Trash2, Clock, FileJson, ChevronRight, Pencil } from "lucide-react"
+import {
+  History,
+  Trash2,
+  Clock,
+  FileJson,
+  ChevronRight,
+  Pencil,
+} from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 
 import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
 import {
   Sheet,
   SheetContent,
@@ -24,7 +32,13 @@ import {
 } from "@/components/ui/dialog"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
-import { getHistory, clearHistory, updateHistoryItemName, deleteHistoryItem, type HistoryItem } from "@/lib/db"
+import {
+  getHistory,
+  clearHistory,
+  updateHistoryItemName,
+  deleteHistoryItem,
+  type HistoryItem,
+} from "@/lib/db"
 import { toast } from "sonner"
 import { Label } from "@/components/ui/label"
 
@@ -45,14 +59,16 @@ export function HistoryPanel({ onSelect }: HistoryPanelProps) {
 
   React.useEffect(() => {
     if (!open) return
-    
+
     let active = true
     const load = async () => {
       const items = await getHistory()
       if (active) setHistory(items)
     }
     load()
-    return () => { active = false }
+    return () => {
+      active = false
+    }
   }, [open])
 
   const handleClear = async () => {
@@ -96,15 +112,26 @@ export function HistoryPanel({ onSelect }: HistoryPanelProps) {
           <Button
             variant="ghost"
             size="sm"
-            className="h-8 shrink-0 gap-1.5 text-primary hover:bg-primary/10 hover:text-primary"
+            className={cn(
+              "h-8 shrink-0 gap-1.5 transition-colors hover:bg-primary/10 hover:text-primary",
+              open ? "bg-primary/10 text-primary" : "text-foreground"
+            )}
           >
-            <History className="h-4 w-4" />
+            <History
+              className={cn(
+                "h-4 w-4",
+                open ? "text-primary" : "text-foreground"
+              )}
+            />
             <span className="hidden text-xs font-medium sm:inline lg:inline">
               History
             </span>
           </Button>
         </SheetTrigger>
-        <SheetContent side="right" className="w-[300px] sm:w-[400px] flex flex-col p-0">
+        <SheetContent
+          side="right"
+          className="flex w-[300px] flex-col p-0 sm:w-[400px]"
+        >
           <SheetHeader className="p-6 pb-4">
             <div className="flex items-center justify-between">
               <SheetTitle className="flex items-center gap-2">
@@ -120,7 +147,7 @@ export function HistoryPanel({ onSelect }: HistoryPanelProps) {
           <ScrollArea className="flex-1 px-6">
             <div className="py-4">
               {history.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-12 text-muted-foreground gap-2">
+                <div className="flex flex-col items-center justify-center gap-2 py-12 text-muted-foreground">
                   <Clock className="h-8 w-8 opacity-20" />
                   <p className="text-sm">No history yet</p>
                 </div>
@@ -129,16 +156,16 @@ export function HistoryPanel({ onSelect }: HistoryPanelProps) {
                   {history.map((item) => (
                     <div
                       key={item.id}
-                      className="group relative flex flex-col gap-1 rounded-lg border p-3 hover:bg-muted/50 cursor-pointer transition-colors"
+                      className="group relative flex cursor-pointer flex-col gap-1 rounded-lg border p-3 transition-colors hover:bg-muted/50"
                       onClick={() => handleSelect(item.input)}
                     >
                       <div className="flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-2 min-w-0 flex-1">
-                          <FileJson className="h-4 w-4 text-primary/60 shrink-0" />
-                          <span className="text-sm font-semibold truncate uppercase tracking-tight">
+                        <div className="flex min-w-0 flex-1 items-center gap-2">
+                          <FileJson className="h-4 w-4 shrink-0 text-primary/60" />
+                          <span className="truncate text-sm font-semibold tracking-tight uppercase">
                             {item.name}
                           </span>
-                          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                          <div className="flex shrink-0 items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
                             <Button
                               variant="ghost"
                               size="icon"
@@ -151,20 +178,24 @@ export function HistoryPanel({ onSelect }: HistoryPanelProps) {
                               variant="ghost"
                               size="icon"
                               className="h-6 w-6 hover:bg-destructive/10 hover:text-destructive"
-                              onClick={(e) => item.id && handleDeleteItem(e, item.id)}
+                              onClick={(e) =>
+                                item.id && handleDeleteItem(e, item.id)
+                              }
                             >
                               <Trash2 className="h-3.5 w-3.5" />
                             </Button>
                           </div>
                         </div>
-                        <span className="text-[10px] text-muted-foreground whitespace-nowrap shrink-0">
-                          {formatDistanceToNow(item.timestamp, { addSuffix: true })}
+                        <span className="shrink-0 text-[10px] whitespace-nowrap text-muted-foreground">
+                          {formatDistanceToNow(item.timestamp, {
+                            addSuffix: true,
+                          })}
                         </span>
                       </div>
-                      <p className="text-[11px] text-muted-foreground line-clamp-2 font-mono bg-muted/30 p-1.5 rounded mt-1">
+                      <p className="mt-1 line-clamp-2 rounded bg-muted/30 p-1.5 font-mono text-[11px] text-muted-foreground">
                         {item.input.substring(0, 100)}
                       </p>
-                      <div className="absolute right-2 bottom-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="absolute right-2 bottom-2 opacity-0 transition-opacity group-hover:opacity-100">
                         <ChevronRight className="h-4 w-4 text-primary" />
                       </div>
                     </div>
@@ -174,7 +205,7 @@ export function HistoryPanel({ onSelect }: HistoryPanelProps) {
             </div>
           </ScrollArea>
           {history.length > 0 && (
-            <SheetFooter className="p-6 pt-4 border-t">
+            <SheetFooter className="border-t p-6 pt-4">
               <Button
                 variant="destructive"
                 className="w-full gap-2"
@@ -188,7 +219,10 @@ export function HistoryPanel({ onSelect }: HistoryPanelProps) {
         </SheetContent>
       </Sheet>
 
-      <Dialog open={!!editingItem} onOpenChange={(open) => !open && setEditingItem(null)}>
+      <Dialog
+        open={!!editingItem}
+        onOpenChange={(open) => !open && setEditingItem(null)}
+      >
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Rename History Item</DialogTitle>
@@ -201,7 +235,7 @@ export function HistoryPanel({ onSelect }: HistoryPanelProps) {
               <Label htmlFor="name">Name</Label>
               <input
                 id="name"
-                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
                 autoFocus

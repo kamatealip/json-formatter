@@ -643,11 +643,13 @@ export function JsonFormatter() {
                     toast.success("JSON Beautified")
                   }}
                   className={cn(
-                    "h-8 shrink-0 gap-1.5 text-primary hover:bg-primary/10 hover:text-primary",
-                    activeTab === "code" && indentSize !== "minify" && "bg-primary/5"
+                    "h-8 shrink-0 gap-1.5 transition-colors hover:bg-primary/10 hover:text-primary",
+                    activeTab === "code" && indentSize !== "minify" 
+                      ? "bg-primary/10 text-primary" 
+                      : "text-foreground"
                   )}
                 >
-                  <RefreshCw className="h-4 w-4 text-primary" />
+                  <RefreshCw className={cn("h-4 w-4", activeTab === "code" && indentSize !== "minify" ? "text-primary" : "text-foreground")} />
                   <span className="hidden text-xs font-medium sm:inline lg:inline">
                     Format
                   </span>
@@ -667,11 +669,11 @@ export function JsonFormatter() {
                     toast.success("Switched to Tree View")
                   }}
                   className={cn(
-                    "h-8 shrink-0 gap-1.5 text-primary hover:bg-primary/10 hover:text-primary",
-                    activeTab === "viewer" && "bg-primary/5"
+                    "h-8 shrink-0 gap-1.5 transition-colors hover:bg-primary/10 hover:text-primary",
+                    activeTab === "viewer" ? "bg-primary/10 text-primary" : "text-foreground"
                   )}
                 >
-                  <ListTree className="h-4 w-4 text-primary" />
+                  <ListTree className={cn("h-4 w-4", activeTab === "viewer" ? "text-primary" : "text-foreground")} />
                   <span className="hidden text-xs font-medium sm:inline lg:inline">
                     Tree View
                   </span>
@@ -686,9 +688,9 @@ export function JsonFormatter() {
                   variant="ghost"
                   size="sm"
                   onClick={handleSmartFix}
-                  className="h-8 shrink-0 gap-1.5 text-primary hover:bg-primary/10 hover:text-primary"
+                  className="h-8 shrink-0 gap-1.5 text-foreground transition-colors hover:bg-primary/10 hover:text-primary"
                 >
-                  <Sparkles className="h-4 w-4 text-primary" />
+                  <Sparkles className="h-4 w-4" />
                   <span className="hidden text-xs font-medium sm:inline lg:inline">
                     Fix
                   </span>
@@ -710,11 +712,13 @@ export function JsonFormatter() {
                     toast.success("JSON Minified")
                   }}
                   className={cn(
-                    "h-8 shrink-0 gap-1.5 hover:bg-primary/10 hover:text-primary",
-                    indentSize === "minify" && activeTab === "code" && "bg-primary/5 text-primary"
+                    "h-8 shrink-0 gap-1.5 transition-colors hover:bg-primary/10 hover:text-primary",
+                    indentSize === "minify" && activeTab === "code" 
+                      ? "bg-primary/10 text-primary" 
+                      : "text-foreground"
                   )}
                 >
-                  <Minimize2 className="h-4 w-4 text-primary" />
+                  <Minimize2 className={cn("h-4 w-4", indentSize === "minify" && activeTab === "code" ? "text-primary" : "text-foreground")} />
                   <span className="hidden text-xs font-medium sm:inline lg:inline">
                     Minify
                   </span>
@@ -768,9 +772,9 @@ export function JsonFormatter() {
                   size="sm"
                   onClick={handleCopyAction}
                   disabled={!parsed}
-                  className="h-8 gap-1.5 border text-primary shadow-sm transition-colors hover:bg-primary/5"
+                  className="h-8 gap-1.5 border text-foreground shadow-sm transition-colors hover:bg-primary/5 hover:text-primary"
                 >
-                  <Copy className="h-3.5 w-3.5 text-primary" />
+                  <Copy className="h-3.5 w-3.5" />
                   <span className="hidden text-xs font-semibold md:inline">
                     Copy
                   </span>
