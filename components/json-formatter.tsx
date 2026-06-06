@@ -21,8 +21,6 @@ import {
   ShieldCheck,
   Search,
   X,
-  ChevronUp,
-  ChevronDown,
 } from "lucide-react"
 import { toast } from "sonner"
 import { getLocation, parseTree, findNodeAtLocation } from "jsonc-parser"
@@ -88,46 +86,12 @@ export function JsonFormatter() {
   const monacoRef = React.useRef<Monaco | null>(null)
 
   // Output Editor States
-  const [editorSearchQuery, setEditorSearchQuery] = React.useState("")
+  const [treeSearchQuery, setTreeSearchQuery] = React.useState("")
   const [editorActivePath, setEditorActivePath] = React.useState<(string | number)[]>([])
-  const [codeMatchCount, setCodeMatchCount] = React.useState(0)
   const [treeMatchCount, setTreeMatchCount] = React.useState(0)
-  const [currentMatchIndex, setCurrentMatchIndex] = React.useState(0)
   const outputEditorRef = React.useRef<editor.IStandaloneCodeEditor | null>(null)
-  const decorationsRef = React.useRef<editor.IEditorDecorationsCollection | null>(null)
 
   const [activeTab, setActiveTab] = React.useState<string>("code")
-  const [isSearchOpen, setIsSearchOpen] = React.useState(false)
-
-  const matchCount = activeTab === "code" ? codeMatchCount : treeMatchCount
-
-  const handleNextMatch = () => {
-    if (codeMatchCount === 0) return
-    const nextIndex = (currentMatchIndex + 1) % codeMatchCount
-    setCurrentMatchIndex(nextIndex)
-    scrollToMatch(nextIndex)
-  }
-
-  const handlePrevMatch = () => {
-    if (codeMatchCount === 0) return
-    const prevIndex = (currentMatchIndex - 1 + codeMatchCount) % codeMatchCount
-    setCurrentMatchIndex(prevIndex)
-    scrollToMatch(prevIndex)
-  }
-
-  const scrollToMatch = (index: number) => {
-    const editor = outputEditorRef.current
-    if (!editor || !editorSearchQuery) return
-    const model = editor.getModel()
-    if (!model) return
-
-    const matches = model.findMatches(editorSearchQuery, false, false, false, null, true)
-    if (matches[index]) {
-      const range = matches[index].range
-      editor.revealRangeInCenterIfOutsideViewport(range)
-      editor.setPosition({ lineNumber: range.startLineNumber, column: range.startColumn })
-    }
-  }
 
   // Load from IndexedDB on mount
   React.useEffect(() => {
@@ -312,50 +276,6 @@ export function JsonFormatter() {
 
   const { output, parsed, error } = processedResult
 
-  React.useEffect(() => {
-    if (!outputEditorRef.current || !editorSearchQuery) {
-      decorationsRef.current?.clear()
-      setCodeMatchCount(0)
-      setCurrentMatchIndex(0)
-      return
-    }
-
-    const editor = outputEditorRef.current
-    const model = editor.getModel()
-    if (!model) return
-
-    const matches = model.findMatches(editorSearchQuery, false, false, false, null, true)
-    setCodeMatchCount(matches.length)
-    
-    // Reset index if query changed and matches found
-    if (matches.length > 0) {
-      // Find matches again to ensure we have fresh ranges for decorations
-      const newDecorations = matches.map((match, i) => ({
-        range: match.range,
-        options: {
-          inlineClassName: i === currentMatchIndex 
-            ? "bg-emerald-500/60 ring-1 ring-emerald-500/80 rounded-sm" 
-            : "bg-emerald-500/25 rounded-sm",
-          isWholeLine: false,
-        },
-      }))
-
-      if (!decorationsRef.current) {
-        decorationsRef.current = editor.createDecorationsCollection(newDecorations)
-      } else {
-        decorationsRef.current.set(newDecorations)
-      }
-
-      // If this was a fresh search (currentMatchIndex was 0), scroll to first match
-      if (currentMatchIndex === 0) {
-        editor.revealRangeInCenterIfOutsideViewport(matches[0].range)
-      }
-    } else {
-      decorationsRef.current?.clear()
-      setCurrentMatchIndex(0)
-    }
-  }, [editorSearchQuery, output, currentMatchIndex])
-
   const generateCopyText = (data: unknown, config: CopyConfig): string => {
     let result = ""
     if (config.minify) {
@@ -388,7 +308,7 @@ export function JsonFormatter() {
   const handleClear = () => {
     setInput("")
     setIndentSize("2")
-    setEditorSearchQuery("")
+    setTreeSearchQuery("")
     setEditorActivePath([])
     toast.info("Cleared")
   }
@@ -396,7 +316,7 @@ export function JsonFormatter() {
   const handleReset = () => {
     setInput(DEFAULT_JSON)
     setIndentSize("2")
-    setEditorSearchQuery("")
+    setTreeSearchQuery("")
     setEditorActivePath([])
     toast.success("Reset to Default")
   }
@@ -626,41 +546,54 @@ export function JsonFormatter() {
         onValueChange={setActiveTab}
         className="flex h-full flex-col"
       >
-        <div className="flex h-9 shrink-0 items-center justify-between border-b bg-muted/10 px-3 text-[10px] font-bold text-muted-foreground uppercase">
-          <div className="flex items-center gap-2">
-            <span>Output</span>
+        <div className="flex h-11 shrink-0 items-center justify-between border-b bg-muted/10 px-3 text-[10px] font-bold text-muted-foreground uppercase">
+          <div className="flex flex-1 items-center gap-4">
+            <span className="shrink-0">Output</span>
+            {activeTab === "viewer" && (
+              <div className="relative max-w-sm flex-1 animate-in fade-in slide-in-from-left-2 duration-300">
+                <Search className={cn(
+                  "absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 transition-colors",
+                  treeSearchQuery ? "text-emerald-500" : "text-muted-foreground/50"
+                )} />
+                <input
+                  type="text"
+                  placeholder="Search in tree view..."
+                  value={treeSearchQuery}
+                  onChange={(e) => setTreeSearchQuery(e.target.value)}
+                  className={cn(
+                    "w-full rounded-full border bg-background/50 py-1.5 pr-8 pl-8 text-[11px] transition-all focus:bg-background focus:outline-none hover:bg-background focus:ring-1",
+                    treeSearchQuery 
+                      ? "border-emerald-500/40 focus:ring-emerald-500/30" 
+                      : "border-border/50 focus:ring-primary/40"
+                  )}
+                />
+                {treeSearchQuery && (
+                  <div className="absolute right-2 top-1/2 flex -translate-y-1/2 items-center gap-2">
+                    <span className="text-[9px] font-mono text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+                      {treeMatchCount} {treeMatchCount === 1 ? 'match' : 'matches'}
+                    </span>
+                    <button
+                      onClick={() => setTreeSearchQuery("")}
+                      className="p-0.5 hover:bg-muted rounded-full transition-colors"
+                    >
+                      <X className="h-3 w-3 text-muted-foreground" />
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
-          <TabsList className="h-8 border bg-muted/50 p-1 gap-1 rounded-lg">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsSearchOpen(!isSearchOpen)}
-              className={cn(
-                "h-6 gap-1.5 px-3 text-[10px] uppercase font-bold transition-all relative rounded-md",
-                isSearchOpen 
-                  ? "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90" 
-                  : "text-muted-foreground hover:bg-muted-foreground/10 hover:text-foreground"
-              )}
-            >
-              <Search className={cn("h-3 w-3", isSearchOpen ? "text-primary-foreground" : "text-muted-foreground")} />
-              Search
-              {editorSearchQuery && matchCount > 0 && !isSearchOpen && (
-                <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-orange-500 text-[8px] text-white ring-2 ring-background font-black">
-                  {matchCount > 9 ? '9+' : matchCount}
-                </span>
-              )}
-            </Button>
-            <div className="w-[1px] h-4 bg-border/50 self-center" />
+          <TabsList className="h-8 ml-2 gap-1 rounded-lg border bg-muted/50 p-1">
             <TabsTrigger
               value="code"
-              className="h-6 gap-1.5 px-3 text-[10px] uppercase font-bold data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm rounded-md"
+              className="h-6 gap-1.5 rounded-md px-3 text-[10px] font-bold uppercase data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm"
             >
               <Code2 className="h-3 w-3" />
               Code
             </TabsTrigger>
             <TabsTrigger
               value="viewer"
-              className="h-6 gap-1.5 px-3 text-[10px] uppercase font-bold data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm rounded-md"
+              className="h-6 gap-1.5 rounded-md px-3 text-[10px] font-bold uppercase data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm"
             >
               <ListTree className="h-3 w-3" />
               Viewer
@@ -668,81 +601,13 @@ export function JsonFormatter() {
           </TabsList>
         </div>
 
-        {/* Persistent Collapsible Search Header */}
-        <div 
-          className={cn(
-            "overflow-hidden transition-all duration-300 ease-in-out border-b bg-muted/20",
-            isSearchOpen ? "max-h-12 opacity-100" : "max-h-0 opacity-0 border-none"
-          )}
-        >
-          <div className="px-4 py-2 flex items-center gap-2">
-            <div className="relative flex-1">
-              <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-              <input
-                type="text"
-                placeholder="Search in output..."
-                value={editorSearchQuery}
-                onChange={(e) => setEditorSearchQuery(e.target.value)}
-                className="w-full bg-background border rounded-md pl-8 pr-16 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-primary border-border/50"
-              />
-              <div className="absolute right-8 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
-                {editorSearchQuery && matchCount > 0 && (
-                  <>
-                    {activeTab === "code" && (
-                      <span className="text-[10px] font-mono text-muted-foreground bg-muted px-1.5 py-0.5 rounded flex items-center gap-1">
-                        {currentMatchIndex + 1} / {matchCount}
-                      </span>
-                    )}
-                    {activeTab === "viewer" && (
-                      <span className="text-[10px] font-mono text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
-                        {matchCount} {matchCount === 1 ? 'match' : 'matches'}
-                      </span>
-                    )}
-                    {activeTab === "code" && (
-                      <div className="flex items-center border rounded-md bg-background overflow-hidden">
-                        <button
-                          onClick={handlePrevMatch}
-                          className="p-1 hover:bg-muted transition-colors border-r"
-                          title="Previous match"
-                        >
-                          <ChevronUp className="h-3 w-3" />
-                        </button>
-                        <button
-                          onClick={handleNextMatch}
-                          className="p-1 hover:bg-muted transition-colors"
-                          title="Next match"
-                        >
-                          <ChevronDown className="h-3 w-3" />
-                        </button>
-                      </div>
-                    )}
-                  </>
-                )}
-                {editorSearchQuery && matchCount === 0 && (
-                  <span className="text-[10px] font-medium text-destructive px-1.5">
-                    No matches
-                  </span>
-                )}
-              </div>
-              {editorSearchQuery && (
-                <button
-                  onClick={() => setEditorSearchQuery("")}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 hover:bg-muted rounded-full"
-                >
-                  <X className="h-3 w-3 text-muted-foreground" />
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-
         <div className="relative min-h-0 flex-1">
           <TabsContent
             value="code"
-            className="m-0 h-full flex flex-col p-0 data-[state=inactive]:hidden"
+            className="m-0 flex h-full flex-col p-0 data-[state=inactive]:hidden"
           >
             {/* Breadcrumbs bar */}
-            <div className="px-4 py-1.5 border-b bg-muted/5 flex items-center gap-1 overflow-x-auto no-scrollbar shrink-0 min-h-8">
+            <div className="no-scrollbar flex min-h-8 shrink-0 items-center gap-1 overflow-x-auto border-b bg-muted/5 px-4 py-1.5">
               <button
                 onClick={() => {
                   if (outputEditorRef.current) {
@@ -752,7 +617,7 @@ export function JsonFormatter() {
                   }
                 }}
                 className={cn(
-                  "text-[10px] font-bold transition-colors uppercase tracking-wider whitespace-nowrap",
+                  "whitespace-nowrap text-[10px] font-bold uppercase tracking-wider transition-colors",
                   editorActivePath.length === 0
                     ? "text-primary"
                     : "text-muted-foreground hover:text-primary"
@@ -762,7 +627,7 @@ export function JsonFormatter() {
               </button>
               {editorActivePath.map((segment, i) => (
                 <React.Fragment key={i}>
-                  <ChevronRight className="h-3 w-3 text-muted-foreground/30 shrink-0" />
+                  <ChevronRight className="h-3 w-3 shrink-0 text-muted-foreground/30" />
                   <button
                     onClick={() => {
                       if (outputEditorRef.current) {
@@ -782,7 +647,7 @@ export function JsonFormatter() {
                       }
                     }}
                     className={cn(
-                      "text-[10px] font-bold transition-colors whitespace-nowrap",
+                      "whitespace-nowrap text-[10px] font-bold transition-colors",
                       i === editorActivePath.length - 1
                         ? "text-primary"
                         : "text-muted-foreground hover:text-primary"
@@ -794,7 +659,7 @@ export function JsonFormatter() {
               ))}
             </div>
 
-            <div className="flex-1 min-h-0">
+            <div className="min-h-0 flex-1">
               <Editor
                 height="100%"
                 defaultLanguage="json"
@@ -831,7 +696,7 @@ export function JsonFormatter() {
           >
             <JsonTreeView 
               data={parsed} 
-              searchQuery={editorSearchQuery}
+              searchQuery={treeSearchQuery}
               onMatchCountChange={setTreeMatchCount}
             />
           </TabsContent>

@@ -36,7 +36,7 @@ function HighlightText({ text, query }: { text: string; query: string }) {
         <span 
           key={i} 
           className={cn(
-            part.toLowerCase() === query.toLowerCase() && "bg-emerald-500/30 text-emerald-900 dark:text-emerald-100 ring-1 ring-emerald-500/40 rounded-sm px-0.5 font-medium shadow-[0_0_8px_rgba(16,185,129,0.2)]"
+            part.toLowerCase() === query.toLowerCase() && "font-medium"
           )}
         >
           {part}
@@ -133,7 +133,7 @@ function JsonNode({ data, name, isLast = true, depth = 0, path = [], forceShow =
         className={cn(
           "flex items-center gap-2 py-0.5 my-0.5 group rounded px-1 transition-colors cursor-pointer", 
           isMatch && "bg-emerald-500/15 ring-1 ring-emerald-500/40 shadow-[inset_0_0_8px_rgba(16,185,129,0.1)]",
-          isActive && "bg-primary/10 ring-1 ring-primary/20 shadow-sm"
+          isActive && "bg-emerald-500/10 ring-1 ring-emerald-500/20 shadow-sm"
         )}
         onClick={(e) => {
           e.stopPropagation()
@@ -180,7 +180,7 @@ function JsonNode({ data, name, isLast = true, depth = 0, path = [], forceShow =
         className={cn(
           "flex items-center gap-1.5 py-1 my-0.5 group rounded px-1 transition-colors cursor-pointer", 
           isNameMatch && "bg-emerald-500/15 ring-1 ring-emerald-500/40 shadow-[inset_0_0_8px_rgba(16,185,129,0.1)]",
-          isActive && "bg-primary/10 ring-1 ring-primary/20 shadow-sm"
+          isActive && "bg-emerald-500/10 ring-1 ring-emerald-500/20 shadow-sm"
         )}
         onClick={(e) => {
           e.stopPropagation()
@@ -222,7 +222,7 @@ function JsonNode({ data, name, isLast = true, depth = 0, path = [], forceShow =
             {filteredKeys.map((key, index) => (
               <JsonNode 
                 key={key} 
-                name={isArray ? Number(key) : key} 
+                name={key} 
                 data={record[key]} 
                 isLast={index === filteredKeys.length - 1}
                 depth={depth + 1}
