@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { ChevronDown, ChevronRight, Folder, FileJson, Hash, Type, ToggleLeft, Ghost, Search, X } from "lucide-react"
+import { ChevronDown, ChevronRight, Folder, FileJson, Hash, Type, ToggleLeft, Ghost } from "lucide-react"
 import { cn } from "@/lib/utils"
 import {
   Collapsible,
@@ -25,6 +25,26 @@ interface TreeContextType {
 }
 
 const TreeContext = React.createContext<TreeContextType | null>(null)
+
+function HighlightText({ text, query }: { text: string; query: string }) {
+  if (!query) return <span>{text}</span>
+  
+  const parts = text.split(new RegExp(`(${query})`, "gi"))
+  return (
+    <span>
+      {parts.map((part, i) => (
+        <span 
+          key={i} 
+          className={cn(
+            part.toLowerCase() === query.toLowerCase() && "bg-emerald-500/30 text-emerald-900 dark:text-emerald-100 ring-1 ring-emerald-500/40 rounded-sm px-0.5 font-medium shadow-[0_0_8px_rgba(16,185,129,0.2)]"
+          )}
+        >
+          {part}
+        </span>
+      ))}
+    </span>
+  )
+}
 
 function deepMatch(data: unknown, query: string): boolean {
   if (!query) return true
@@ -51,8 +71,8 @@ function JsonNode({ data, name, isLast = true, depth = 0, path = [], forceShow =
     return name !== undefined ? [...path, name] : path
   }, [name, path, depth])
 
-  const isActive = activePath.length > 0 && JSON.stringify(activePath) === JSON.stringify(currentPath)
-  const isNameMatch = !!(name && searchQuery && name.toLowerCase().includes(searchQuery.toLowerCase()))
+  const isActive = activePath.length > 0 && JSON.stringify(activePath) === JSON.stringify(currentPath.map(String))
+  const isNameMatch = !!(name !== undefined && searchQuery && String(name).toLowerCase().includes(searchQuery.toLowerCase()))
 
   // Recursive case calculations for expansion logic
   const record = isObject ? (data as Record<string, unknown>) : {}
@@ -111,8 +131,8 @@ function JsonNode({ data, name, isLast = true, depth = 0, path = [], forceShow =
     return (
       <div 
         className={cn(
-          "flex items-center gap-2 py-0.5 group rounded px-1 transition-colors cursor-pointer", 
-          isMatch && "bg-primary/20 ring-1 ring-primary/30",
+          "flex items-center gap-2 py-0.5 my-0.5 group rounded px-1 transition-colors cursor-pointer", 
+          isMatch && "bg-emerald-500/15 ring-1 ring-emerald-500/40 shadow-[inset_0_0_8px_rgba(16,185,129,0.1)]",
           isActive && "bg-primary/10 ring-1 ring-primary/20 shadow-sm"
         )}
         onClick={(e) => {
@@ -122,10 +142,14 @@ function JsonNode({ data, name, isLast = true, depth = 0, path = [], forceShow =
       >
         <div className="flex items-center gap-1.5 min-w-fit">
           <Icon className="h-3.5 w-3.5 text-muted-foreground/50" />
-          {name && <span className="text-sm font-medium text-foreground/80">{name}:</span>}
+          {name !== undefined && (
+            <span className="text-sm font-medium text-foreground/80 font-mono">
+              <HighlightText text={String(name)} query={searchQuery} />:
+            </span>
+          )}
         </div>
         <span className={cn("text-sm break-all font-mono", valueColor)}>
-          {valueStr}
+          <HighlightText text={valueStr} query={searchQuery} />
           {!isLast && <span className="text-muted-foreground">,</span>}
         </span>
       </div>
@@ -154,8 +178,8 @@ function JsonNode({ data, name, isLast = true, depth = 0, path = [], forceShow =
     >
       <div 
         className={cn(
-          "flex items-center gap-1.5 py-1 group rounded px-1 transition-colors cursor-pointer", 
-          isNameMatch && "bg-primary/20 ring-1 ring-primary/30",
+          "flex items-center gap-1.5 py-1 my-0.5 group rounded px-1 transition-colors cursor-pointer", 
+          isNameMatch && "bg-emerald-500/15 ring-1 ring-emerald-500/40 shadow-[inset_0_0_8px_rgba(16,185,129,0.1)]",
           isActive && "bg-primary/10 ring-1 ring-primary/20 shadow-sm"
         )}
         onClick={(e) => {
@@ -181,8 +205,12 @@ function JsonNode({ data, name, isLast = true, depth = 0, path = [], forceShow =
           onClick={() => setIsOpen(!isOpen)}
         >
           <LabelIcon className="h-3.5 w-3.5 text-primary/70 shrink-0" />
-          {name && <span className="text-sm font-semibold text-foreground/90">{name}:</span>}
-          <span className="text-[11px] font-bold text-muted-foreground bg-muted/60 px-1.5 py-0.5 rounded uppercase tracking-wider">
+          {name !== undefined && (
+            <span className="text-sm font-semibold text-foreground/90 font-mono">
+              <HighlightText text={String(name)} query={searchQuery} />:
+            </span>
+          )}
+          <span className="text-[11px] font-bold text-muted-foreground bg-muted/60 px-1.5 py-0.5 rounded uppercase tracking-wider font-mono">
             {previewText}
           </span>
         </div>
@@ -194,11 +222,11 @@ function JsonNode({ data, name, isLast = true, depth = 0, path = [], forceShow =
             {filteredKeys.map((key, index) => (
               <JsonNode 
                 key={key} 
-                name={isArray ? undefined : key} 
+                name={isArray ? Number(key) : key} 
                 data={record[key]} 
                 isLast={index === filteredKeys.length - 1}
                 depth={depth + 1}
-                path={isArray ? [...currentPath, `[${key}]`] : currentPath}
+                path={currentPath}
                 forceShow={isNameMatch || forceShow}
               />
             ))}
@@ -211,9 +239,16 @@ function JsonNode({ data, name, isLast = true, depth = 0, path = [], forceShow =
   )
 }
 
-export function JsonTreeView({ data }: { data: unknown }) {
-  const [searchQuery, setSearchQuery] = React.useState("")
-  const [activePath, setActivePath] = React.useState<string[]>([])
+export function JsonTreeView({ 
+  data, 
+  searchQuery = "", 
+  onMatchCountChange
+}: { 
+  data: unknown, 
+  searchQuery?: string, 
+  onMatchCountChange?: (count: number) => void
+}) {
+  const [activePath, setActivePath] = React.useState<(string | number)[]>([])
 
   const matchCount = React.useMemo(() => {
     if (!searchQuery) return 0
@@ -237,6 +272,10 @@ export function JsonTreeView({ data }: { data: unknown }) {
     return count
   }, [data, searchQuery])
 
+  React.useEffect(() => {
+    onMatchCountChange?.(matchCount)
+  }, [matchCount, onMatchCountChange])
+
   if (data === null || data === undefined) {
     return (
       <div className="flex flex-col items-center justify-center h-full text-muted-foreground gap-2">
@@ -247,37 +286,8 @@ export function JsonTreeView({ data }: { data: unknown }) {
   }
 
   return (
-    <TreeContext.Provider value={{ activePath, setActivePath, searchQuery }}>
+    <TreeContext.Provider value={{ activePath: activePath.map(String), setActivePath: (p) => setActivePath(p), searchQuery }}>
       <div className="h-full w-full flex flex-col overflow-hidden">
-        {/* Search Header */}
-        <div className="px-4 py-2 border-b bg-muted/20 flex items-center gap-2 shrink-0">
-          <div className="relative flex-1">
-            <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-            <input 
-              type="text" 
-              placeholder="Search keys or values..." 
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-background border rounded-md pl-8 pr-16 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-primary border-border/50"
-            />
-            <div className="absolute right-8 top-1/2 -translate-y-1/2 flex items-center gap-2">
-              {searchQuery && (
-                <span className="text-[10px] font-mono text-muted-foreground bg-muted px-1 rounded">
-                  {matchCount}
-                </span>
-              )}
-            </div>
-            {searchQuery && (
-              <button 
-                onClick={() => setSearchQuery("")}
-                className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 hover:bg-muted rounded-full"
-              >
-                <X className="h-3 w-3 text-muted-foreground" />
-              </button>
-            )}
-          </div>
-        </div>
-
         {/* Breadcrumbs bar */}
         <div className="px-4 py-1.5 border-b bg-muted/5 flex items-center gap-1 overflow-x-auto no-scrollbar shrink-0 min-h-8">
           <button 
@@ -299,7 +309,7 @@ export function JsonTreeView({ data }: { data: unknown }) {
                   i === activePath.length - 1 ? "text-primary" : "text-muted-foreground hover:text-primary"
                 )}
               >
-                {segment}
+                {typeof segment === "number" ? `[${segment}]` : segment}
               </button>
             </React.Fragment>
           ))}
