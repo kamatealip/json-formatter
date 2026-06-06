@@ -19,8 +19,11 @@ import {
   FileUp,
   RotateCcw,
   ShieldCheck,
+  Search,
+  X,
 } from "lucide-react"
 import { toast } from "sonner"
+import { getLocation, parseTree, findNodeAtLocation } from "jsonc-parser"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -81,6 +84,13 @@ export function JsonFormatter() {
   const [isDbLoaded, setIsDbLoaded] = React.useState(false)
   const editorRef = React.useRef<editor.IStandaloneCodeEditor | null>(null)
   const monacoRef = React.useRef<Monaco | null>(null)
+
+  // Output Editor States
+  const [editorSearchQuery, setEditorSearchQuery] = React.useState("")
+  const [editorActivePath, setEditorActivePath] = React.useState<(string | number)[]>([])
+  const [matchCount, setMatchCount] = React.useState(0)
+  const outputEditorRef = React.useRef<editor.IStandaloneCodeEditor | null>(null)
+  const decorationsRef = React.useRef<editor.IEditorDecorationsCollection | null>(null)
 
   // Load from IndexedDB on mount
   React.useEffect(() => {
@@ -267,6 +277,35 @@ export function JsonFormatter() {
 
   const { output, parsed, error } = processedResult
 
+  React.useEffect(() => {
+    if (!outputEditorRef.current || !editorSearchQuery) {
+      decorationsRef.current?.clear()
+      setMatchCount(0)
+      return
+    }
+
+    const editor = outputEditorRef.current
+    const model = editor.getModel()
+    if (!model) return
+
+    const matches = model.findMatches(editorSearchQuery, false, false, false, null, true)
+    setMatchCount(matches.length)
+
+    const newDecorations = matches.map((match) => ({
+      range: match.range,
+      options: {
+        inlineClassName: "bg-yellow-500/30",
+        isWholeLine: false,
+      },
+    }))
+
+    if (!decorationsRef.current) {
+      decorationsRef.current = editor.createDecorationsCollection(newDecorations)
+    } else {
+      decorationsRef.current.set(newDecorations)
+    }
+  }, [editorSearchQuery, output])
+
   const generateCopyText = (data: unknown, config: CopyConfig): string => {
     let result = ""
     if (config.minify) {
@@ -299,12 +338,16 @@ export function JsonFormatter() {
   const handleClear = () => {
     setInput("")
     setIndentSize("2")
+    setEditorSearchQuery("")
+    setEditorActivePath([])
     toast.info("Cleared")
   }
 
   const handleReset = () => {
     setInput(DEFAULT_JSON)
     setIndentSize("2")
+    setEditorSearchQuery("")
+    setEditorActivePath([])
     toast.success("Reset to Default")
   }
 
@@ -555,26 +598,120 @@ export function JsonFormatter() {
         <div className="relative min-h-0 flex-1">
           <TabsContent
             value="code"
-            className="m-0 h-full p-0 data-[state=inactive]:hidden"
+            className="m-0 h-full flex flex-col p-0 data-[state=inactive]:hidden"
           >
-            <Editor
-              height="100%"
-              defaultLanguage="json"
-              theme={editorTheme}
-              beforeMount={handleEditorWillMount}
-              value={output}
-              options={{
-                readOnly: true,
-                minimap: { enabled: false },
-                fontSize: 14,
-                scrollBeyondLastLine: false,
-                automaticLayout: true,
-                padding: { top: 10 },
-                lineNumbers: "on",
-                wordWrap: "on",
-                domReadOnly: true,
-              }}
-            />
+            {/* Search Header */}
+            <div className="px-4 py-2 border-b bg-muted/20 flex items-center gap-2 shrink-0">
+              <div className="relative flex-1">
+                <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                <input
+                  type="text"
+                  placeholder="Search in output..."
+                  value={editorSearchQuery}
+                  onChange={(e) => setEditorSearchQuery(e.target.value)}
+                  className="w-full bg-background border rounded-md pl-8 pr-16 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-primary border-border/50"
+                />
+                <div className="absolute right-8 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                  {editorSearchQuery && (
+                    <span className="text-[10px] font-mono text-muted-foreground bg-muted px-1 rounded">
+                      {matchCount}
+                    </span>
+                  )}
+                </div>
+                {editorSearchQuery && (
+                  <button
+                    onClick={() => setEditorSearchQuery("")}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 hover:bg-muted rounded-full"
+                  >
+                    <X className="h-3 w-3 text-muted-foreground" />
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Breadcrumbs bar */}
+            <div className="px-4 py-1.5 border-b bg-muted/5 flex items-center gap-1 overflow-x-auto no-scrollbar shrink-0 min-h-8">
+              <button
+                onClick={() => {
+                  if (outputEditorRef.current) {
+                    outputEditorRef.current.setPosition({ lineNumber: 1, column: 1 })
+                    outputEditorRef.current.revealPosition({ lineNumber: 1, column: 1 })
+                    outputEditorRef.current.focus()
+                  }
+                }}
+                className={cn(
+                  "text-[10px] font-bold transition-colors uppercase tracking-wider whitespace-nowrap",
+                  editorActivePath.length === 0
+                    ? "text-primary"
+                    : "text-muted-foreground hover:text-primary"
+                )}
+              >
+                root
+              </button>
+              {editorActivePath.map((segment, i) => (
+                <React.Fragment key={i}>
+                  <ChevronRight className="h-3 w-3 text-muted-foreground/30 shrink-0" />
+                  <button
+                    onClick={() => {
+                      if (outputEditorRef.current) {
+                        const model = outputEditorRef.current.getModel()
+                        if (!model) return
+                        const path = editorActivePath.slice(0, i + 1)
+                        const rootNode = parseTree(model.getValue())
+                        if (rootNode) {
+                          const node = findNodeAtLocation(rootNode, path)
+                          if (node) {
+                            const pos = model.getPositionAt(node.offset)
+                            outputEditorRef.current.setPosition(pos)
+                            outputEditorRef.current.revealPositionInCenter(pos)
+                            outputEditorRef.current.focus()
+                          }
+                        }
+                      }
+                    }}
+                    className={cn(
+                      "text-[10px] font-bold transition-colors whitespace-nowrap",
+                      i === editorActivePath.length - 1
+                        ? "text-primary"
+                        : "text-muted-foreground hover:text-primary"
+                    )}
+                  >
+                    {typeof segment === "number" ? `[${segment}]` : segment}
+                  </button>
+                </React.Fragment>
+              ))}
+            </div>
+
+            <div className="flex-1 min-h-0">
+              <Editor
+                height="100%"
+                defaultLanguage="json"
+                theme={editorTheme}
+                beforeMount={handleEditorWillMount}
+                onMount={(editor) => {
+                  outputEditorRef.current = editor
+                  editor.onDidChangeCursorPosition((e) => {
+                    const model = editor.getModel()
+                    if (!model) return
+                    const offset = model.getOffsetAt(e.position)
+                    const location = getLocation(model.getValue(), offset)
+                    setEditorActivePath(location.path)
+                  })
+                }}
+                value={output}
+                options={{
+                  readOnly: true,
+                  minimap: { enabled: false },
+                  fontSize: 14,
+                  scrollBeyondLastLine: false,
+                  automaticLayout: true,
+                  padding: { top: 10 },
+                  lineNumbers: "on",
+                  wordWrap: "on",
+                  domReadOnly: true,
+                }}
+              />
+            </div>
           </TabsContent>
           <TabsContent
             value="viewer"
