@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { ArrowLeft, FileJson, Mail, MessageSquare } from "lucide-react"
+import { ArrowLeft, FileJson, MessageSquare } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
 
 export default function ContactPage() {
@@ -40,20 +40,12 @@ export default function ContactPage() {
                 input helps us make it better.
               </p>
 
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                <ContactCard
-                  icon={<Mail className="h-6 w-6 text-primary" />}
-                  title="Email"
-                  description="General inquiries and support"
-                  link="mailto:hello@jsonlix.com"
-                  linkText="hello@jsonlix.com"
-                />
-
+              <div className="flex justify-center">
                 <ContactCard
                   icon={<MessageSquare className="h-6 w-6 text-primary" />}
                   title="Discord"
                   description="Join our developer community"
-                  link="https://discord.gg/jsonlix"
+                  link="https://discord.gg/VsemrRqH"
                   linkText="Join Discord"
                 />
               </div>

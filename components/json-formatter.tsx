@@ -132,18 +132,18 @@ export function JsonFormatter() {
       base: 'vs-dark',
       inherit: true,
       rules: [
-        { token: 'string', foreground: '4ade80' },
-        { token: 'number', foreground: '60a5fa' },
-        { token: 'keyword', foreground: 'fb923c' },
-        { token: 'type', foreground: 'fb923c' },
+        { token: 'string', foreground: '4ade80' }, // Green 400
+        { token: 'number', foreground: '60a5fa' }, // Blue 400
+        { token: 'keyword', foreground: 'fb923c' }, // Orange 400
         { token: 'comment', foreground: '6b7280' },
         { token: 'operator', foreground: '9ca3af' },
-        { token: 'key', foreground: 'e5e7eb' },
+        { token: 'string.key.json', foreground: 'e5e7eb' }, // Key
+        { token: 'string.value.json', foreground: '4ade80' }, // Value
       ],
       colors: {
-        'editor.background': '#0d1117',
+        'editor.background': '#000000',
         'editor.foreground': '#e5e7eb',
-        'editor.lineHighlightBackground': '#161b22',
+        'editor.lineHighlightBackground': '#111111',
         'editorCursor.foreground': '#3b82f6',
         'editorIndentGuide.background': '#21262d',
         'editor.selectionBackground': '#1f6feb44',
@@ -154,13 +154,13 @@ export function JsonFormatter() {
       base: 'vs',
       inherit: true,
       rules: [
-        { token: 'string', foreground: '16a34a' },
-        { token: 'number', foreground: '2563eb' },
-        { token: 'keyword', foreground: 'ea580c' },
-        { token: 'type', foreground: 'ea580c' },
+        { token: 'string', foreground: '16a34a' }, // Green 600
+        { token: 'number', foreground: '2563eb' }, // Blue 600
+        { token: 'keyword', foreground: 'ea580c' }, // Orange 600
         { token: 'comment', foreground: '6b7280' },
         { token: 'operator', foreground: '4b5563' },
-        { token: 'key', foreground: '1f2937' },
+        { token: 'string.key.json', foreground: '1f2937' }, // Key
+        { token: 'string.value.json', foreground: '16a34a' }, // Value
       ],
       colors: {
         'editor.background': '#ffffff',
@@ -329,7 +329,7 @@ export function JsonFormatter() {
       <div className="px-3 py-1.5 text-[10px] uppercase font-bold text-muted-foreground bg-muted/10 border-b flex items-center justify-between h-9 shrink-0">
         <div className="flex items-center gap-2 text-primary/70">
           <span>Input</span>
-          <span className="font-normal opacity-70">Paste or drop JSON</span>
+          <span className="font-normal text-white">Paste or drop JSON</span>
         </div>
         <div className="flex items-center gap-1">
           <input 
