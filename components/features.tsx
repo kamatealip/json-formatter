@@ -41,16 +41,12 @@ export async function Features() {
         <div className="flex flex-col justify-between gap-8 md:flex-row md:items-end max-w-6xl mx-auto">
           <div className="max-w-2xl">
             <h2 className="mb-6 bg-gradient-to-r from-foreground to-foreground/40 bg-clip-text text-4xl font-black tracking-tighter text-transparent md:text-6xl animate-in fade-in slide-in-from-left-4 duration-1000">
-              Professional JSON Beautifier & Formatter.
+              Professional JSON Beautifier, Formatter & Professional Viewer.
             </h2>
             <p className="text-xl font-medium text-muted-foreground animate-in fade-in slide-in-from-left-4 duration-1000 delay-200">
-              Engineered for developers who demand the best online JSON viewer, 
-              validator, and repair tool with 100% data privacy.
+              Engineered for developers who demand the best online JSON viewer
+              and repair tool with 100% data privacy.
             </p>
-          </div>
-          <div className="flex items-center gap-4 rounded-full border border-border px-6 py-2 text-xs font-black tracking-[0.4em] text-muted-foreground uppercase">
-            <Sparkles className="h-3 w-3 animate-pulse text-primary" />
-            <span>Validator Engine</span>
           </div>
         </div>
       </div>
