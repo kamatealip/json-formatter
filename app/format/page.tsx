@@ -5,16 +5,19 @@ import { ThemeToggle } from "@/components/theme-toggle"
 import { FileJson, ArrowLeft } from "lucide-react"
 
 export const metadata: Metadata = {
-  title: "JSONlix | The Ultimate Online JSON Formatter & Viewer",
+  title: "Online JSON Formatter, Beautifier & Tree Viewer",
   description:
-    "Experience the ultimate online JSON formatter, validator, and viewer. Fast, secure, and privacy-focused local processing for professional developers.",
+    "Experience the best online JSON formatter, beautifier, and tree viewer. Fast, secure, and privacy-focused local processing with smart JSON repair.",
   keywords: [
     "online json formatter",
+    "json beautifier",
     "json viewer",
     "json validator",
-    "json beautifier",
+    "json tree view",
+    "minify json",
     "JSONlix",
-    "ultimate json experience",
+    "beautify json online",
+    "offline json formatter"
   ],
 }
 

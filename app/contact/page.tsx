@@ -1,11 +1,18 @@
+import { Metadata } from "next"
 import Link from "next/link"
 import { ArrowLeft, FileJson, MessageSquare } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
 
+export const metadata: Metadata = {
+  title: "Contact Us - JSONlix Developer Support",
+  description: "Get in touch with the JSONlix team for feedback, feature requests, or technical support regarding our online JSON tools.",
+}
+
 export default function ContactPage() {
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
-      {/* Navigation */}
+...
+
       <nav className="sticky top-0 z-[100] flex items-center justify-between border-b border-border bg-background/50 px-6 py-4 backdrop-blur-xl">
         <div className="flex items-center gap-4">
           <Link

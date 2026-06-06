@@ -18,33 +18,38 @@ const fontMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "JSON Formatter - Best Online JSON Viewer & Repair Tool",
+    default: "JSON Formatter - Best Online JSON Viewer, Beautifier & Repair Tool",
     template: "%s | JSONlix"
   },
-  description: "Free online JSON formatter and viewer. Best tool to format, beautify, repair, and navigate complex JSON data structures with recursive tree view and smart syntax repair.",
-  keywords: ["json formatter", "online json formatter", "json fromatter online", "online json viewer", "online json tree view", "free online json viewer", "free online json formatter", "online json formatter free"],
+  description: "Free online JSON formatter, viewer, and validator. Best tool to beautify, minify, repair, and navigate complex JSON data locally with 100% privacy and high performance.",
+  keywords: [
+    "json formatter", "online json formatter", "json beautifier", "json viewer online", 
+    "json validator", "json lint", "minify json", "json repair tool", "offline json formatter",
+    "private json viewer", "json tree view", "large json viewer", "json formatter online free",
+    "beautify json online", "validate json schema"
+  ],
   authors: [{ name: "JSONlix" }],
   creator: "JSONlix",
   openGraph: {
     type: "website",
     locale: "en_US",
     url: "https://jsonlix.com",
-    title: "JSON Formatter - Online JSON Viewer & Repair Tool",
-    description: "Format, repair, and explore JSON files locally. High-performance online JSON formatter with 100% privacy.",
+    title: "JSON Formatter - Online JSON Viewer, Beautifier & Repair Tool",
+    description: "Format, validate, and explore JSON files locally. High-performance online JSON beautifier and viewer with 100% privacy.",
     siteName: "JSONlix",
     images: [
       {
         url: "/dark.png",
         width: 1200,
         height: 630,
-        alt: "JSONlix Formatter",
+        alt: "JSONlix - The Best Online JSON Formatter",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "JSON Formatter - Online JSON Viewer & Repair Tool",
-    description: "Format, repair, and explore JSON files locally. High-performance online JSON formatter with 100% privacy.",
+    title: "JSON Formatter - Online JSON Viewer, Beautifier & Repair Tool",
+    description: "Format, validate, and explore JSON files locally. High-performance online JSON beautifier and viewer with 100% privacy.",
     images: ["/dark.png"],
     creator: "@jsonlix",
   },
