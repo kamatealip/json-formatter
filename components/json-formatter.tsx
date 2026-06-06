@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { Editor, loader, type Monaco } from "@monaco-editor/react"
+import type { editor } from "monaco-editor"
 import { useTheme } from "next-themes"
 import {
   Copy,
@@ -42,8 +43,9 @@ import {
 } from "@/components/ui/tooltip"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { JsonTreeView } from "@/components/json-tree-view"
+import { HistoryPanel } from "@/components/history-panel"
 import { cn } from "@/lib/utils"
-import { saveEditorState, loadEditorState } from "@/lib/db"
+import { saveEditorState, loadEditorState, addToHistory } from "@/lib/db"
 
 // Configure Monaco loader to ensure themes are ready
 loader.config({
@@ -60,26 +62,14 @@ interface CopyConfig {
 }
 
 const DEFAULT_JSON = `{
-  "message": "Welcome to JSONlix",
-  "status": "online",
-  "tagline": "The Ultimate Online JSON Experience",
-  "capabilities": {
-    "repair": "Smart Syntax Auto-Fix",
-    "search": "Recursive Tree Filtering",
-    "storage": "Infinite Local Persistence",
-    "ux": "Drag & Drop Support"
-  },
+  "message": "Paste your JSON here or drop a file to begin",
+  "status": "ready",
   "features": [
-    "Syntax Highlighting",
-    "Instant Minifying",
-    "Pro-Grade Viewer",
-    "Python Dict Export"
-  ],
-  "stats": {
-    "security": "100% Client-Side",
-    "speed": "Instant",
-    "version": "2.0.0"
-  }
+    "Smart Repair",
+    "Tree Viewer",
+    "Minification",
+    "Local Persistence"
+  ]
 }`
 
 export function JsonFormatter() {
@@ -89,6 +79,8 @@ export function JsonFormatter() {
   const [input, setInput] = React.useState<string>(DEFAULT_JSON)
   const [indentSize, setIndentSize] = React.useState<string>("2")
   const [isDbLoaded, setIsDbLoaded] = React.useState(false)
+  const editorRef = React.useRef<editor.IStandaloneCodeEditor | null>(null)
+  const monacoRef = React.useRef<Monaco | null>(null)
 
   // Load from IndexedDB on mount
   React.useEffect(() => {
@@ -182,10 +174,64 @@ export function JsonFormatter() {
     error: string | null
   }>({ output: "", parsed: null, error: null })
 
+  const updateMarkers = React.useCallback((errorMsg: string | null) => {
+    if (!monacoRef.current || !editorRef.current) return
+    const monaco = monacoRef.current
+    const editor = editorRef.current
+    const model = editor.getModel()
+    if (!model) return
+
+    if (!errorMsg) {
+      monaco.editor.setModelMarkers(model, "json", [])
+      return
+    }
+
+    // Try to extract position from error message
+    const posMatch = errorMsg.match(/at position (\d+)/)
+    const lineColMatch = errorMsg.match(/at line (\d+) column (\d+)/)
+
+    const markers: editor.IMarkerData[] = []
+    if (posMatch) {
+      const offset = parseInt(posMatch[1])
+      const pos = model.getPositionAt(offset)
+      markers.push({
+        startLineNumber: pos.lineNumber,
+        startColumn: Math.max(1, pos.column - 1),
+        endLineNumber: pos.lineNumber,
+        endColumn: pos.column + 1,
+        message: errorMsg,
+        severity: monaco.MarkerSeverity.Error,
+      })
+    } else if (lineColMatch) {
+      const line = parseInt(lineColMatch[1])
+      const col = parseInt(lineColMatch[2])
+      markers.push({
+        startLineNumber: line,
+        startColumn: col,
+        endLineNumber: line,
+        endColumn: col + 1,
+        message: errorMsg,
+        severity: monaco.MarkerSeverity.Error,
+      })
+    } else {
+      markers.push({
+        startLineNumber: 1,
+        startColumn: 1,
+        endLineNumber: 1,
+        endColumn: Math.max(1, model.getLineMaxColumn(1)),
+        message: errorMsg,
+        severity: monaco.MarkerSeverity.Error,
+      })
+    }
+
+    monaco.editor.setModelMarkers(model, "json", markers)
+  }, [])
+
   React.useEffect(() => {
     startTransition(() => {
       if (!deferredInput.trim()) {
         setProcessedResult({ output: "", parsed: null, error: null })
+        updateMarkers(null)
         return
       }
 
@@ -205,12 +251,19 @@ export function JsonFormatter() {
           parsed: parsedData,
           error: null,
         })
+        updateMarkers(null)
+        
+        // Add to history if it's a valid change and not empty
+        if (deferredInput.trim().length > 10) {
+          addToHistory(deferredInput)
+        }
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : String(err)
         setProcessedResult({ output: "", parsed: null, error: msg })
+        updateMarkers(msg)
       }
     })
-  }, [deferredInput, indentSize])
+  }, [deferredInput, indentSize, updateMarkers])
 
   const { output, parsed, error } = processedResult
 
@@ -284,19 +337,80 @@ export function JsonFormatter() {
 
   const handleSmartFix = () => {
     try {
-      const fixed = input
+      let fixed = input
         .replace(/\/\/.*$/gm, "") // Remove single-line comments
         .replace(/\/\*[\s\S]*?\*\//g, "") // Remove multi-line comments
-        .replace(/'/g, '"') // Single to double quotes (heuristic)
-        .replace(/([{,]\s*)([a-zA-Z0-9_$]+)(\s*:)/g, '$1"$2"$3') // Unquoted keys
-        .replace(/,\s*([}\]])/g, "$1") // Trailing commas
         .trim()
+
+      // 1. Python-style booleans/null
+      fixed = fixed
+        .replace(/\bTrue\b/g, "true")
+        .replace(/\bFalse\b/g, "false")
+        .replace(/\bNone\b/g, "null")
+
+      // 2. Fix single quotes to double quotes
+      fixed = fixed.replace(/'/g, '"')
+
+      // 3. Quote unquoted keys (more aggressive)
+      // Standard key: val
+      fixed = fixed.replace(/([{,]\s*)([a-zA-Z0-9_$]+)\s*:/g, '$1"$2":')
+      // Key after nested structure or value
+      fixed = fixed.replace(/([}\]" \d])\s+([a-zA-Z0-9_$]+)\s*:/g, '$1 "$2":')
+      // Ensure all keys are quoted if they are word-like and followed by a colon
+      fixed = fixed.replace(/(^|[^a-zA-Z0-9_$"])([a-zA-Z0-9_$]+)\s*:/g, '$1"$2":')
+
+      // 4. Add missing colon between key and value
+      // Matches "key" [whitespace] value-start
+      fixed = fixed.replace(/("([^"]+)"\s*)(?="|\d|true|false|null|\[|{)/g, (match) => {
+        return match.includes(":") ? match : match + ": "
+      })
+
+      // 5. Add missing commas (The most critical part for nested values)
+      // We look for boundaries where a comma SHOULD be:
+      // - Between a value and a new key
+      // - Between two values in an array
+      // - Between nested objects/arrays
+      
+      const valueEnd = '(?:"[^"]*"|\\d+|true|false|null|[}\\]])'
+      const valueStart = '(?:"[^"]*"|\\d+|true|false|null|[{\\[])'
+      
+      // Pattern 1: End of value followed by start of another value/key
+      // We use a lookahead to ensure we don't insert comma before a colon (key's own colon)
+      const commaRegex = new RegExp(`(${valueEnd})\\s+(${valueStart})`, "g")
+
+      for (let i = 0; i < 3; i++) {
+        fixed = fixed.replace(commaRegex, (match, p1, p2) => {
+          // If the match already contains a comma or colon, or if p2 is a key followed by a colon,
+          // we need to be careful. But generally, if we have ValueEnd [space] ValueStart, a comma is missing.
+          // Exception: "key": value -> no comma between "key" and ":"
+          // The regex already matches the space.
+          return `${p1}, ${p2}`
+        })
+      }
+
+      // 6. Special handling for boundaries around brackets/braces
+      // e.g., [1 2] -> [1, 2]
+      // e.g., {"a":1 "b":2} -> {"a":1, "b":2}
+      // e.g., [1] [2] -> [1], [2]
+      fixed = fixed.replace(/([}\]])\s+([{\[])/g, "$1, $2")
+      fixed = fixed.replace(/([}\]])\s+(")/g, "$1, $2")
+      fixed = fixed.replace(/("|\d|true|false|null)\s+(")/g, "$1, $2")
+
+      // 7. Clean up potential double commas or commas after opening braces
+      fixed = fixed.replace(/,\s*,/g, ",")
+      fixed = fixed.replace(/([{[,])\s*,/g, "$1")
+
+      // 8. Trailing commas
+      fixed = fixed.replace(/,\s*([}\]])/g, "$1")
 
       const parsedData = JSON.parse(fixed)
       setInput(JSON.stringify(parsedData, null, 2))
       toast.success("JSON Automatically Repaired")
-    } catch {
-      toast.error("Could not repair JSON automatically")
+    } catch (err) {
+      console.error("Smart Fix failed:", err)
+      const msg = err instanceof Error ? err.message : String(err)
+      updateMarkers(msg)
+      toast.error("Could not repair JSON automatically. Check error markers.")
     }
   }
 
@@ -353,6 +467,7 @@ export function JsonFormatter() {
                 size="sm"
                 className="h-6 w-6 p-0 opacity-50 hover:opacity-100"
                 onClick={() => fileInputRef.current?.click()}
+                aria-label="Upload JSON file"
               >
                 <FileUp className="h-3 w-3" />
               </Button>
@@ -366,6 +481,7 @@ export function JsonFormatter() {
                 size="sm"
                 className="h-6 w-6 p-0 opacity-50 hover:opacity-100"
                 onClick={handleReset}
+                aria-label="Reset to default"
               >
                 <RotateCcw className="h-3 w-3" />
               </Button>
@@ -380,6 +496,10 @@ export function JsonFormatter() {
           defaultLanguage="json"
           theme={editorTheme}
           beforeMount={handleEditorWillMount}
+          onMount={(editor, monaco) => {
+            editorRef.current = editor
+            monacoRef.current = monaco
+          }}
           value={input}
           onChange={(v) => setInput(v || "")}
           options={{
@@ -485,8 +605,18 @@ export function JsonFormatter() {
       <div className="group relative">
         <div className="no-scrollbar flex shrink-0 items-center justify-between overflow-x-auto scroll-smooth border-b bg-muted/30 p-2">
           <div className="flex items-center gap-1.5 pr-10 md:gap-2">
-            <Select value={indentSize} onValueChange={setIndentSize}>
-              <SelectTrigger className="h-8 w-[100px] shrink-0 bg-background text-xs md:w-[110px]">
+            <Select 
+              value={indentSize} 
+              onValueChange={(v) => {
+                setIndentSize(v)
+                const label = v === "tab" ? "Tabs" : v === "minify" ? "Minified" : `${v} Spaces`
+                toast.success(`Indent set to ${label}`)
+              }}
+            >
+              <SelectTrigger 
+                className="h-8 w-[100px] shrink-0 bg-background text-xs md:w-[110px]"
+                aria-label="Indent size"
+              >
                 <SelectValue placeholder="Indent" />
               </SelectTrigger>
               <SelectContent>
@@ -507,15 +637,17 @@ export function JsonFormatter() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() =>
+                  onClick={() => {
+                    setActiveTab("code")
                     setIndentSize(indentSize === "minify" ? "2" : indentSize)
-                  }
+                    toast.success("JSON Beautified")
+                  }}
                   className={cn(
                     "h-8 shrink-0 gap-1.5 text-primary hover:bg-primary/10 hover:text-primary",
-                    indentSize !== "minify" && "bg-primary/5"
+                    activeTab === "code" && indentSize !== "minify" && "bg-primary/5"
                   )}
                 >
-                  <RefreshCw className="h-4 w-4" />
+                  <RefreshCw className="h-4 w-4 text-primary" />
                   <span className="hidden text-xs font-medium sm:inline lg:inline">
                     Format
                   </span>
@@ -529,10 +661,34 @@ export function JsonFormatter() {
                 <Button
                   variant="ghost"
                   size="sm"
+                  onClick={() => {
+                    setActiveTab("viewer")
+                    setMobileView("output")
+                    toast.success("Switched to Tree View")
+                  }}
+                  className={cn(
+                    "h-8 shrink-0 gap-1.5 text-primary hover:bg-primary/10 hover:text-primary",
+                    activeTab === "viewer" && "bg-primary/5"
+                  )}
+                >
+                  <ListTree className="h-4 w-4 text-primary" />
+                  <span className="hidden text-xs font-medium sm:inline lg:inline">
+                    Tree View
+                  </span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Switch to Recursive Tree View</TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={handleSmartFix}
                   className="h-8 shrink-0 gap-1.5 text-primary hover:bg-primary/10 hover:text-primary"
                 >
-                  <Sparkles className="h-4 w-4" />
+                  <Sparkles className="h-4 w-4 text-primary" />
                   <span className="hidden text-xs font-medium sm:inline lg:inline">
                     Fix
                   </span>
@@ -541,18 +697,24 @@ export function JsonFormatter() {
               <TooltipContent>Auto-repair syntax errors</TooltipContent>
             </Tooltip>
 
+            <HistoryPanel onSelect={(input) => setInput(input)} />
+
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => setIndentSize("minify")}
+                  onClick={() => {
+                    setActiveTab("code")
+                    setIndentSize("minify")
+                    toast.success("JSON Minified")
+                  }}
                   className={cn(
                     "h-8 shrink-0 gap-1.5 hover:bg-primary/10 hover:text-primary",
-                    indentSize === "minify" && "bg-primary/5 text-primary"
+                    indentSize === "minify" && activeTab === "code" && "bg-primary/5 text-primary"
                   )}
                 >
-                  <Minimize2 className="h-4 w-4" />
+                  <Minimize2 className="h-4 w-4 text-primary" />
                   <span className="hidden text-xs font-medium sm:inline lg:inline">
                     Minify
                   </span>
@@ -608,7 +770,7 @@ export function JsonFormatter() {
                   disabled={!parsed}
                   className="h-8 gap-1.5 border text-primary shadow-sm transition-colors hover:bg-primary/5"
                 >
-                  <Copy className="h-3.5 w-3.5" />
+                  <Copy className="h-3.5 w-3.5 text-primary" />
                   <span className="hidden text-xs font-semibold md:inline">
                     Copy
                   </span>

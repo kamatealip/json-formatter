@@ -86,9 +86,16 @@ export default function RootLayout({
       suppressHydrationWarning
       className={cn("antialiased", fontMono.variable, "font-sans", inter.variable)}
     >
+      <head>
+        <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="anonymous" />
+      </head>
       <body>
-        <Script async src="https://www.googletagmanager.com/gtag/js?id=G-VPYL6YC2VB" />
-        <Script id="google-analytics">
+        <Script
+          async
+          src="https://www.googletagmanager.com/gtag/js?id=G-VPYL6YC2VB"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}

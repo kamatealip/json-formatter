@@ -1,6 +1,6 @@
 import { Metadata } from "next"
 import Link from "next/link"
-import { JsonFormatter } from "@/components/json-formatter"
+import { JsonFormatter } from "@/components/json-formatter-dynamic"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { FileJson, ArrowLeft } from "lucide-react"
 

@@ -15,6 +15,7 @@ interface JsonTreeViewProps {
   isLast?: boolean
   depth?: number
   path?: string[]
+  forceShow?: boolean
 }
 
 interface TreeContextType {
@@ -37,7 +38,7 @@ function deepMatch(data: unknown, query: string): boolean {
   return false
 }
 
-function JsonNode({ data, name, isLast = true, depth = 0, path = [] }: JsonTreeViewProps) {
+function JsonNode({ data, name, isLast = true, depth = 0, path = [], forceShow = false }: JsonTreeViewProps) {
   const context = React.useContext(TreeContext)
   const { activePath = [], setActivePath = () => {}, searchQuery = "" } = context || {}
 
@@ -51,16 +52,37 @@ function JsonNode({ data, name, isLast = true, depth = 0, path = [] }: JsonTreeV
   }, [name, path, depth])
 
   const isActive = activePath.length > 0 && JSON.stringify(activePath) === JSON.stringify(currentPath)
+  const isNameMatch = !!(name && searchQuery && name.toLowerCase().includes(searchQuery.toLowerCase()))
 
-  const [isOpen, setIsOpen] = React.useState(depth < 2 || !!searchQuery)
+  // Recursive case calculations for expansion logic
+  const record = isObject ? (data as Record<string, unknown>) : {}
+  const keys = isObject ? Object.keys(record) : []
+  
+  // Filtering logic: if the name matches, show all keys. Otherwise, filter.
+  const filteredKeys = searchQuery && !isNameMatch && isObject
+    ? keys.filter(key => {
+        const matchesKey = key.toLowerCase().includes(searchQuery.toLowerCase())
+        if (matchesKey) return true
+        return deepMatch(record[key], searchQuery)
+      })
+    : keys
+
+  const hasMatchInside = searchQuery && filteredKeys.length > 0
+  
+  // Expansion logic - MUST be called before any early returns
+  const [isOpen, setIsOpen] = React.useState<boolean>(() => {
+    if (searchQuery) return !!(isNameMatch || hasMatchInside)
+    return depth < 2
+  })
   const [prevSearchQuery, setPrevSearchQuery] = React.useState(searchQuery)
 
   if (searchQuery !== prevSearchQuery) {
     setPrevSearchQuery(searchQuery)
-    if (searchQuery) setIsOpen(true)
+    if (searchQuery) {
+      // Auto-expand if it matches or has matches inside
+      if (isNameMatch || hasMatchInside) setIsOpen(true)
+    }
   }
-
-  if (!context) return null
 
   // Base case: Primitive types
   if (!isObject) {
@@ -81,12 +103,10 @@ function JsonNode({ data, name, isLast = true, depth = 0, path = [] }: JsonTreeV
     }
 
     const valueStr = typeof data === "string" ? `"${data}"` : String(data)
-    const isMatch = searchQuery && (
-      (name && name.toLowerCase().includes(searchQuery.toLowerCase())) || 
-      valueStr.toLowerCase().includes(searchQuery.toLowerCase())
-    )
+    const isValueMatch = searchQuery && valueStr.toLowerCase().includes(searchQuery.toLowerCase())
+    const isMatch = isNameMatch || isValueMatch
 
-    if (searchQuery && !isMatch) return null
+    if (searchQuery && !isMatch && !forceShow) return null
 
     return (
       <div 
@@ -101,7 +121,7 @@ function JsonNode({ data, name, isLast = true, depth = 0, path = [] }: JsonTreeV
         }}
       >
         <div className="flex items-center gap-1.5 min-w-fit">
-          <Icon className="h-3 w-3 text-muted-foreground/50" />
+          <Icon className="h-3.5 w-3.5 text-muted-foreground/50" />
           {name && <span className="text-sm font-medium text-foreground/80">{name}:</span>}
         </div>
         <span className={cn("text-sm break-all font-mono", valueColor)}>
@@ -113,29 +133,18 @@ function JsonNode({ data, name, isLast = true, depth = 0, path = [] }: JsonTreeV
   }
 
   // Recursive case: Objects and Arrays
-  const record = data as Record<string, unknown>
-  const keys = Object.keys(record)
   const isEmpty = keys.length === 0
   const LabelIcon = isArray ? FileJson : Folder
   
-  // Filtering logic
-  const filteredKeys = searchQuery 
-    ? keys.filter(key => {
-        const matchesKey = key.toLowerCase().includes(searchQuery.toLowerCase())
-        if (matchesKey) return true
-        return deepMatch(record[key], searchQuery)
-      })
-    : keys
+  const shouldRender = !searchQuery || isNameMatch || hasMatchInside || forceShow
 
-  if (searchQuery && filteredKeys.length === 0 && !(name && name.toLowerCase().includes(searchQuery.toLowerCase()))) {
-    return null
-  }
+  if (!shouldRender) return null
+
+  if (!context) return null
 
   const previewText = isArray 
     ? `Array [${keys.length}]` 
     : `Object {${keys.length}}`
-
-  const isNameMatch = name && searchQuery && name.toLowerCase().includes(searchQuery.toLowerCase())
 
   return (
     <Collapsible
@@ -167,7 +176,10 @@ function JsonNode({ data, name, isLast = true, depth = 0, path = [] }: JsonTreeV
           </button>
         </CollapsibleTrigger>
         
-        <div className="flex items-center gap-1.5 cursor-pointer select-none" onClick={() => setIsOpen(!isOpen)}>
+        <div 
+          className="flex items-center gap-1.5 cursor-pointer select-none" 
+          onClick={() => setIsOpen(!isOpen)}
+        >
           <LabelIcon className="h-3.5 w-3.5 text-primary/70 shrink-0" />
           {name && <span className="text-sm font-semibold text-foreground/90">{name}:</span>}
           <span className="text-[11px] font-bold text-muted-foreground bg-muted/60 px-1.5 py-0.5 rounded uppercase tracking-wider">
@@ -187,6 +199,7 @@ function JsonNode({ data, name, isLast = true, depth = 0, path = [] }: JsonTreeV
                 isLast={index === filteredKeys.length - 1}
                 depth={depth + 1}
                 path={isArray ? [...currentPath, `[${key}]`] : currentPath}
+                forceShow={isNameMatch || forceShow}
               />
             ))}
           </div>
@@ -202,6 +215,28 @@ export function JsonTreeView({ data }: { data: unknown }) {
   const [searchQuery, setSearchQuery] = React.useState("")
   const [activePath, setActivePath] = React.useState<string[]>([])
 
+  const matchCount = React.useMemo(() => {
+    if (!searchQuery) return 0
+    let count = 0
+    const traverse = (obj: unknown) => {
+      if (obj === null || obj === undefined) return
+      const q = searchQuery.toLowerCase()
+      
+      if (typeof obj !== "object") {
+        if (String(obj).toLowerCase().includes(q)) count++
+        return
+      }
+
+      const record = obj as Record<string, unknown>
+      Object.keys(record).forEach(key => {
+        if (key.toLowerCase().includes(q)) count++
+        traverse(record[key])
+      })
+    }
+    traverse(data)
+    return count
+  }, [data, searchQuery])
+
   if (data === null || data === undefined) {
     return (
       <div className="flex flex-col items-center justify-center h-full text-muted-foreground gap-2">
@@ -215,7 +250,7 @@ export function JsonTreeView({ data }: { data: unknown }) {
     <TreeContext.Provider value={{ activePath, setActivePath, searchQuery }}>
       <div className="h-full w-full flex flex-col overflow-hidden">
         {/* Search Header */}
-        <div className="px-4 py-2 border-b bg-muted/20 flex items-center gap-2 shrink-0">
+        <div className="px-4 py-2 border-b bg-secondary flex items-center gap-2 shrink-0">
           <div className="relative flex-1">
             <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
             <input 
@@ -223,8 +258,15 @@ export function JsonTreeView({ data }: { data: unknown }) {
               placeholder="Search keys or values..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-background border rounded-md pl-8 pr-8 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-primary"
+              className="w-full bg-background border rounded-md pl-8 pr-16 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-primary border-border/50"
             />
+            <div className="absolute right-8 top-1/2 -translate-y-1/2 flex items-center gap-2">
+              {searchQuery && (
+                <span className="text-[10px] font-mono text-muted-foreground bg-muted px-1 rounded">
+                  {matchCount}
+                </span>
+              )}
+            </div>
             {searchQuery && (
               <button 
                 onClick={() => setSearchQuery("")}
@@ -237,7 +279,7 @@ export function JsonTreeView({ data }: { data: unknown }) {
         </div>
 
         {/* Breadcrumbs bar */}
-        <div className="px-4 py-1.5 border-b bg-muted/5 flex items-center gap-1 overflow-x-auto no-scrollbar shrink-0 min-h-8">
+        <div className="px-4 py-1.5 border-b bg-secondary/50 flex items-center gap-1 overflow-x-auto no-scrollbar shrink-0 min-h-8">
           <button 
             onClick={() => setActivePath([])}
             className={cn(
@@ -263,7 +305,7 @@ export function JsonTreeView({ data }: { data: unknown }) {
           ))}
         </div>
 
-        <div className="flex-1 overflow-auto p-4 custom-scrollbar">
+        <div className="flex-1 overflow-auto p-4 custom-scrollbar bg-background">
           <div className="max-w-full inline-block min-w-full">
             <JsonNode data={data} depth={0} />
           </div>
